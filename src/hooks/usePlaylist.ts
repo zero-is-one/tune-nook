@@ -28,7 +28,6 @@ export const useUpdatePlaylist = () => {
   const updatePlaylist = async (data: Partial<Playlist>) => {
     try {
       setLoading(true);
-      console.log("updatePlaylist", data, playlist?.id, collectionRef);
       await setDoc(doc(collectionRef, playlist?.id), data, { merge: true });
     } catch (error) {
       setError(error as Error);

@@ -1,28 +1,19 @@
+import { EditableTitle } from "@/components/EditableTitle/EditableTitle";
+import { LayoutPage } from "@/components/LayoutPage/LayoutPage";
 import { usePlaylist, useUpdatePlaylist } from "@/hooks/usePlaylist";
 import { useCreateTune } from "@/hooks/useTunes";
 import { RoutePaths } from "@/router";
-import {
-  ActionIcon,
-  Button,
-  Container,
-  Group,
-  Stack,
-  Text,
-  TextInput,
-} from "@mantine/core";
+import { Box, Button, Container, Group, Stack } from "@mantine/core";
 import { useState } from "react";
-import { FaCheck } from "react-icons/fa";
-import { MdEdit, MdOutlinePlaylistAdd } from "react-icons/md";
+import { MdOutlinePlaylistAdd } from "react-icons/md";
 import { Link } from "react-router-dom";
-import { LayoutPage } from "../LayoutPage/LayoutPage";
 
 export const PagePlaylist = () => {
   const { playlist, loading, error } = usePlaylist();
-  const [updatePlaylist, isUpdatingPlaylist] = useUpdatePlaylist();
+  const [updatePlaylist] = useUpdatePlaylist();
   const [createTune, isCreatingTune] = useCreateTune();
-  //const [createTune, creating] = useCreateTune();
-  const [playlistEditName, setPlaylistEditName] = useState<undefined | string>(
-    undefined,
+  const [editableTitleMode, setEditableTitleMode] = useState<"view" | "edit">(
+    "view",
   );
 
   if (loading) return <LayoutPage>Loading...</LayoutPage>;
@@ -38,45 +29,15 @@ export const PagePlaylist = () => {
         align="center"
         mb={"sm"}
       >
-        {playlistEditName === undefined && (
-          <Group align="center" gap={"xs"} w="calc(100% - 150px)">
-            <Text size={"md"} maw="calc(100% - 38px)" truncate="end">
-              {playlist.name}
-            </Text>
-            <ActionIcon
-              c={"dimmed"}
-              variant="transparent"
-              aria-label="Edit Name"
-              onClick={() => {
-                setPlaylistEditName(playlist.name);
-              }}
-            >
-              <MdEdit size={24} />
-            </ActionIcon>
-          </Group>
-        )}
-        {playlistEditName !== undefined && (
-          <TextInput
-            size="md"
-            placeholder="Playlist Name"
-            value={playlistEditName}
-            onChange={(event) => setPlaylistEditName(event.currentTarget.value)}
-            w="calc(100% - 150px)"
-            rightSection={
-              <ActionIcon
-                aria-label="Edit Name"
-                onClick={async (event) => {
-                  await updatePlaylist({ name: playlistEditName });
-                  setPlaylistEditName(undefined);
-                }}
-                color="green"
-                loading={isUpdatingPlaylist}
-              >
-                <FaCheck size={14} />
-              </ActionIcon>
-            }
+        <Box style={{ flex: 1 }}>
+          <EditableTitle
+            value={playlist.name}
+            onChange={async (name) => {
+              await updatePlaylist({ name });
+            }}
+            onModeChange={setEditableTitleMode}
           />
-        )}
+        </Box>
 
         <Button
           my={3}
@@ -85,7 +46,7 @@ export const PagePlaylist = () => {
             createTune();
           }}
           leftSection={<MdOutlinePlaylistAdd size={24} />}
-          disabled={playlistEditName !== undefined}
+          disabled={editableTitleMode === "edit"}
         >
           New Tune
         </Button>

@@ -12,7 +12,7 @@ export const useCreateTune = () => {
   const [updatePlaylist] = useUpdatePlaylist();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-  console.log(playlist);
+
   const createTune = async () => {
     try {
       setLoading(true);

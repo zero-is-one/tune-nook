@@ -5,8 +5,6 @@ import { useTune } from "@/hooks/useTune";
 import { TextInput } from "@mantine/core";
 import { useState } from "react";
 
-console.log(library);
-
 export const PageTune = () => {
   const [value, setValue] = useState("");
   const { tune } = useTune();
