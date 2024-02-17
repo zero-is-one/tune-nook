@@ -1,19 +1,28 @@
 import { FieldValue, Timestamp } from "firebase/firestore";
 
 export type Song = {
+  title: string;
+  url: string;
+  author: string;
+};
+
+export type Track = {
   id: string;
-  name: string;
+  song: Song;
   startTime: number;
-  playbackSpeed: number;
+  playbackRate: number;
+  lastPlayedAt?: Date;
+  playCount: number;
+  createdAt: Date;
 };
 
 export type Tune = {
   id: string;
   name: string;
   createdAt: Date;
-  lastPlayedAt: Date | undefined;
-  selectedSongId: string | undefined;
-  songs: Song[];
+  selectedTrackId?: string;
+  isFavorited: boolean;
+  tracks: Track[];
 };
 
 export type Playlist = {

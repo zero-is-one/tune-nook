@@ -2,6 +2,7 @@ import { auth } from "@/firebase";
 import {
   Anchor,
   Button,
+  Container,
   Divider,
   PasswordInput,
   Stack,
@@ -59,75 +60,77 @@ export const PageLogin = () => {
 
   return (
     <LayoutPage>
-      <form
-        onSubmit={form.onSubmit(() => {
-          handleSubmit();
-        })}
-      >
-        <Stack mt="md">
-          <Anchor
-            component="button"
-            type="button"
-            c="dimmed"
-            onClick={() => toggle()}
-            size="sm"
-          >
-            {type === "create"
-              ? "Already have an account? Login"
-              : "Don't have an account? Register"}
-          </Anchor>
+      <Container>
+        <form
+          onSubmit={form.onSubmit(() => {
+            handleSubmit();
+          })}
+        >
+          <Stack mt="md">
+            <Anchor
+              component="button"
+              type="button"
+              c="dimmed"
+              onClick={() => toggle()}
+              size="sm"
+            >
+              {type === "create"
+                ? "Already have an account? Login"
+                : "Don't have an account? Register"}
+            </Anchor>
 
-          <Divider />
+            <Divider />
 
-          <Title order={3}>
-            {type === "create" ? "Sign up to Tune Nook" : "Login"}
-          </Title>
+            <Title order={3}>
+              {type === "create" ? "Sign up to Tune Nook" : "Login"}
+            </Title>
 
-          {type === "create" && (
+            {type === "create" && (
+              <TextInput
+                label="Name"
+                placeholder="Your name"
+                value={form.values.name}
+                onChange={(event) =>
+                  form.setFieldValue("name", event.currentTarget.value)
+                }
+                radius="md"
+              />
+            )}
+
             <TextInput
-              label="Name"
-              placeholder="Your name"
-              value={form.values.name}
+              required
+              label="Email"
+              placeholder="example@email.com"
+              value={form.values.email}
               onChange={(event) =>
-                form.setFieldValue("name", event.currentTarget.value)
+                form.setFieldValue("email", event.currentTarget.value)
+              }
+              error={form.errors.email && "Invalid email"}
+              radius="md"
+            />
+            <PasswordInput
+              required
+              label="Password"
+              placeholder="Your password"
+              value={form.values.password}
+              onChange={(event) =>
+                form.setFieldValue("password", event.currentTarget.value)
+              }
+              error={
+                form.errors.password &&
+                "Password should include at least 6 characters"
               }
               radius="md"
             />
-          )}
+            <Button type="submit" loading={loadingCreateUser || loadingSignIn}>
+              {type === "create" ? "Sign up" : "Login"}
+            </Button>
 
-          <TextInput
-            required
-            label="Email"
-            placeholder="example@email.com"
-            value={form.values.email}
-            onChange={(event) =>
-              form.setFieldValue("email", event.currentTarget.value)
-            }
-            error={form.errors.email && "Invalid email"}
-            radius="md"
-          />
-          <PasswordInput
-            required
-            label="Password"
-            placeholder="Your password"
-            value={form.values.password}
-            onChange={(event) =>
-              form.setFieldValue("password", event.currentTarget.value)
-            }
-            error={
-              form.errors.password &&
-              "Password should include at least 6 characters"
-            }
-            radius="md"
-          />
-          <Button type="submit" loading={loadingCreateUser || loadingSignIn}>
-            {type === "create" ? "Sign up" : "Login"}
-          </Button>
-
-          {errorCreateUser && <div>Error: {errorCreateUser.message}</div>}
-          {errorSignIn && <div>Error: {errorSignIn.message}</div>}
-        </Stack>
-      </form>
+            {errorCreateUser && <div>Error: {errorCreateUser.message}</div>}
+            {errorSignIn && <div>Error: {errorSignIn.message}</div>}
+          </Stack>
+        </form>
+      </Container>
     </LayoutPage>
   );
 };

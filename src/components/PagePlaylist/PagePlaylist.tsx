@@ -1,17 +1,18 @@
 import { EditableTitle } from "@/components/EditableTitle/EditableTitle";
 import { LayoutPage } from "@/components/LayoutPage/LayoutPage";
 import { usePlaylist, useUpdatePlaylist } from "@/hooks/usePlaylist";
-import { useCreateTune } from "@/hooks/useTunes";
+import { useAddTune } from "@/hooks/useTunes";
 import { RoutePaths } from "@/router";
 import { Box, Button, Container, Group, Stack } from "@mantine/core";
 import { useState } from "react";
 import { MdOutlinePlaylistAdd } from "react-icons/md";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export const PagePlaylist = () => {
+  const navigate = useNavigate();
   const { playlist, loading, error } = usePlaylist();
   const [updatePlaylist] = useUpdatePlaylist();
-  const [createTune, isCreatingTune] = useCreateTune();
+  const [addTune, isCreatingTune] = useAddTune();
   const [editableTitleMode, setEditableTitleMode] = useState<"view" | "edit">(
     "view",
   );
@@ -42,8 +43,9 @@ export const PagePlaylist = () => {
         <Button
           my={3}
           loading={isCreatingTune}
-          onClick={() => {
-            createTune();
+          onClick={async () => {
+            const tune = await addTune();
+            navigate(`tunes/${tune?.id}`);
           }}
           leftSection={<MdOutlinePlaylistAdd size={24} />}
           disabled={editableTitleMode === "edit"}
