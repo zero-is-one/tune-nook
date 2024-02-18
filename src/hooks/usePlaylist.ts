@@ -1,15 +1,13 @@
+import { playlistsRef } from "@/components/AtomStoreProvider/AtomStoreProvider";
 import { Playlist } from "@/types";
 import { doc, setDoc } from "firebase/firestore";
 import { useState } from "react";
 import { useDocument } from "react-firebase-hooks/firestore";
 import { useParams } from "react-router-dom";
-import { collectionRef } from "./usePlaylists";
 
 export const usePlaylist = () => {
   const { playlistId } = useParams();
-  const [snapshot, loading, error] = useDocument(
-    doc(collectionRef, playlistId),
-  );
+  const [snapshot, loading, error] = useDocument(doc(playlistsRef, playlistId));
 
   return {
     playlist: !snapshot
@@ -28,7 +26,7 @@ export const useUpdatePlaylist = () => {
   const updatePlaylist = async (data: Partial<Playlist>) => {
     try {
       setLoading(true);
-      await setDoc(doc(collectionRef, playlist?.id), data, { merge: true });
+      await setDoc(doc(playlistsRef, playlist?.id), data, { merge: true });
     } catch (error) {
       setError(error as Error);
     } finally {

@@ -6,27 +6,90 @@ import { RiFileMusicFill } from "react-icons/ri";
 
 export const LayoutPage = ({
   children,
+  leftSection,
+  rightSection,
   ...props
-}: { children: ReactNode } & BoxComponentProps) => {
+}: {
+  children: ReactNode;
+  leftSection?: ReactNode;
+  rightSection?: ReactNode;
+} & BoxComponentProps) => {
   const [signOut] = useSignOut(auth);
 
+  const headerHeight = 50;
+
   return (
-    <Box {...props} mih={"100dvh"}>
-      <Group
-        gap={5}
-        p={"sm"}
-        bg={"blue.1"}
-        onDoubleClick={() => {
-          signOut();
-        }}
-        fw={"bold"}
-        align={"center"}
-        justify={"center"}
+    <Box {...props} h={"100dvh"} bg="gray.1">
+      <Box h={headerHeight} bg={"blue.1"} pos="relative">
+        {leftSection && (
+          <Group
+            gap={5}
+            onDoubleClick={() => {
+              signOut();
+            }}
+            pl="md"
+            fw={"bold"}
+            align={"center"}
+            justify={"center"}
+            pos={"absolute"}
+            left={"0"}
+            top={"50%"}
+            style={{
+              transform: "translate(0, -50%)",
+            }}
+          >
+            {leftSection}
+          </Group>
+        )}
+
+        {rightSection && (
+          <Group
+            gap={5}
+            onDoubleClick={() => {
+              signOut();
+            }}
+            pr="md"
+            fw={"bold"}
+            align={"center"}
+            justify={"center"}
+            pos={"absolute"}
+            right={"0"}
+            top={"50%"}
+            style={{
+              transform: "translate(0, -50%)",
+            }}
+          >
+            {rightSection}
+          </Group>
+        )}
+
+        <Group
+          gap={4}
+          onDoubleClick={() => {
+            signOut();
+          }}
+          p={"xs"}
+          fw={"bold"}
+          align={"center"}
+          justify={"center"}
+          pos={"absolute"}
+          left={"50%"}
+          top={"50%"}
+          style={{
+            transform: "translate(-50%, -50%)",
+          }}
+        >
+          <RiFileMusicFill size={24} />
+          TUNE NOOK
+        </Group>
+      </Box>
+      <Box
+        pb={"lg"}
+        h={`calc(100% - ${headerHeight}px)`}
+        style={{ overflow: "auto" }}
       >
-        <RiFileMusicFill size={24} />
-        TUNE NOOK
-      </Group>
-      {children}
+        {children}
+      </Box>
     </Box>
   );
 };

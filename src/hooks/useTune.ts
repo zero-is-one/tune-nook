@@ -1,14 +1,29 @@
 import { Song, Track, Tune } from "@/types";
+import { Timestamp } from "firebase/firestore";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { usePlaylist, useUpdatePlaylist } from "./usePlaylist";
 
-export const useTune = () => {
+const getTuneLastPlayedAt = (tune: Tune) => {
+  return tune?.tracks.reduce((lastPlayedAt: undefined | Timestamp, track) => {
+    if (!lastPlayedAt) return track.lastPlayedAt;
+    if (!track.lastPlayedAt) return lastPlayedAt;
+
+    return track.lastPlayedAt.toDate() > lastPlayedAt.toDate()
+      ? track.lastPlayedAt
+      : lastPlayedAt;
+  }, undefined);
+};
+
+export const useTune = (id: string | undefined = undefined) => {
   const { playlist, loading, error } = usePlaylist();
   const { tuneId } = useParams();
-  const tune = playlist?.tunes?.find((tune) => tune.id === tuneId);
+  const tune = playlist?.tunes?.find((tune) => tune.id === tuneId || id);
 
-  return { tune, loading, error };
+  // gets last played at or undefined if no last plays
+  const lastPlayedAt = getTuneLastPlayedAt(tune!);
+
+  return { tune, loading, error, lastPlayedAt } as const;
 };
 
 export const useUpdateTune = () => {
@@ -47,7 +62,7 @@ export const useAddSong = () => {
   const addSong = async (song: Song) => {
     const track: Track = {
       id: Math.random().toString(36).substring(2),
-      createdAt: new Date(),
+      createdAt: Timestamp.now(),
       playbackRate: 1,
       playCount: 0,
       startTime: 0,
@@ -56,7 +71,6 @@ export const useAddSong = () => {
 
     try {
       setLoading(true);
-      console.log(tune!.tracks, track);
       await updateTune({
         tracks: [...tune!.tracks, track],
       });

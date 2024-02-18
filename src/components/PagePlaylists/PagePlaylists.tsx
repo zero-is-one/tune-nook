@@ -1,73 +1,89 @@
-import {
-  clone as clonePlaylist,
-  create as createPlaylist,
-  remove as removePlaylist,
-  usePlaylists,
-} from "@/hooks/usePlaylists";
+import { usePlaylists } from "@/hooks/usePlaylists";
 import { RoutePaths } from "@/router";
 import {
+  ActionIcon,
+  Anchor,
   Box,
   Button,
-  Card,
   Container,
   Group,
   Menu,
+  Paper,
+  Stack,
   Text,
   Title,
 } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
 import { BiTrash } from "react-icons/bi";
 import { FaClone } from "react-icons/fa";
 import { HiDotsHorizontal } from "react-icons/hi";
+import { TbPlaylistAdd } from "react-icons/tb";
 import { Link } from "react-router-dom";
 import { LayoutPage } from "../LayoutPage/LayoutPage";
 import { RequireAuth } from "../RequireAuth/RequireAuth";
+import { NewPlaylistDrawer } from "./NewPlaylistDrawer";
 
 export const PagePlaylists = () => {
-  const { playlists, loading, error } = usePlaylists();
-
-  if (loading) return <div>Loading Playlists...</div>;
-  if (error) return <div>Error Loading Playlists: {error.message}</div>;
-
+  const {
+    playlists,
+    remove: removePlaylist,
+    clone: clonePlaylist,
+  } = usePlaylists();
+  const drawerDisclosure = useDisclosure();
   return (
     <RequireAuth>
-      <LayoutPage bg="gray.1">
+      <LayoutPage>
         <Container>
-          <Group py={"md"}>
-            <Title order={2}>Playlists</Title>
+          <Group py={"md"} justify="space-between">
+            <Title order={3}>Playlists</Title>
 
             <Button
+              leftSection={<TbPlaylistAdd size={22} />}
               onClick={() => {
-                createPlaylist();
+                drawerDisclosure[1].open();
               }}
             >
-              Create Playlist
+              New Playlist
             </Button>
           </Group>
 
           {playlists
-            .sort((a, b) => a.name.localeCompare(b.name))
+            .sort((a, b) => a.title.localeCompare(b.title))
             .map((playlist) => (
-              <Card key={playlist.id} withBorder mb="sm">
+              <Paper key={playlist.id} withBorder mb="sm">
                 <Group justify="space-between">
-                  <Text
+                  <Anchor
                     flex={1}
                     component={Link}
                     to={RoutePaths.Playlist.replace(":playlistId", playlist.id)}
+                    p="md"
+                    underline="never"
+                    c={"black"}
                   >
-                    {playlist.name} - {playlist.id}
-                  </Text>
+                    <Stack gap={0} maw="calc(100% - 20px)">
+                      <Text fz="sm" fw={700} truncate="end">
+                        {playlist.title}
+                      </Text>
+                      <Text size="xs" truncate="end">
+                        {playlist.tunes.length} Tunes, Created{" "}
+                        {playlist.createdAt.toDate().toLocaleDateString()}
+                      </Text>
+                    </Stack>
+                  </Anchor>
 
-                  <Menu shadow="md" width={200} position="bottom-end">
+                  <Menu shadow="md" width={100} position="right">
                     <Menu.Target>
-                      <Box>
-                        <HiDotsHorizontal size={20} />
+                      <Box px="md" py={"md"}>
+                        <ActionIcon color="dimmed" variant="transparent">
+                          <HiDotsHorizontal size={"100%"} />
+                        </ActionIcon>
                       </Box>
                     </Menu.Target>
                     <Menu.Dropdown>
                       <Menu.Item
                         leftSection={<FaClone size={20} />}
                         onClick={() => {
-                          clonePlaylist(playlist.id);
+                          clonePlaylist(playlist);
                         }}
                       >
                         Clone
@@ -76,7 +92,7 @@ export const PagePlaylists = () => {
                         color="red"
                         leftSection={<BiTrash size={20} />}
                         onClick={() => {
-                          removePlaylist(playlist.id);
+                          removePlaylist(playlist);
                         }}
                       >
                         Delete
@@ -84,10 +100,11 @@ export const PagePlaylists = () => {
                     </Menu.Dropdown>
                   </Menu>
                 </Group>
-              </Card>
+              </Paper>
             ))}
         </Container>
       </LayoutPage>
+      <NewPlaylistDrawer disclosure={drawerDisclosure} />
     </RequireAuth>
   );
 };

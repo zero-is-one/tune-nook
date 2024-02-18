@@ -1,28 +1,30 @@
+import { playlistAtom } from "@/atoms";
 import { EditableTitle } from "@/components/EditableTitle/EditableTitle";
 import { LayoutPage } from "@/components/LayoutPage/LayoutPage";
-import { usePlaylist, useUpdatePlaylist } from "@/hooks/usePlaylist";
-import { useAddTune } from "@/hooks/useTunes";
-import { RoutePaths } from "@/router";
+import { useUpdatePlaylistAtom } from "@/hooks/useUpdatePlaylistAtom";
 import { Box, Button, Container, Group, Stack } from "@mantine/core";
+import { Timestamp } from "firebase/firestore";
+import { useAtom } from "jotai";
 import { useState } from "react";
 import { MdOutlinePlaylistAdd } from "react-icons/md";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { BackButton } from "../BackButton/BackButton";
+import { TuneCard } from "./TuneCard";
 
 export const PagePlaylist = () => {
+  useUpdatePlaylistAtom();
   const navigate = useNavigate();
-  const { playlist, loading, error } = usePlaylist();
-  const [updatePlaylist] = useUpdatePlaylist();
-  const [addTune, isCreatingTune] = useAddTune();
+  const [playlist, setPlaylist] = useAtom(playlistAtom);
   const [editableTitleMode, setEditableTitleMode] = useState<"view" | "edit">(
     "view",
   );
 
-  if (loading) return <LayoutPage>Loading...</LayoutPage>;
-  if (error) return <LayoutPage>Error: {error.message}</LayoutPage>;
-  if (!playlist) return <LayoutPage>No Playlist Found</LayoutPage>;
+  if (!playlist) return "Loading playlist...";
+
+  const isCreatingTune = false;
 
   return (
-    <LayoutPage>
+    <LayoutPage leftSection={<BackButton />}>
       <Group
         bg={"gray.2"}
         justify="space-between"
@@ -32,9 +34,9 @@ export const PagePlaylist = () => {
       >
         <Box style={{ flex: 1 }}>
           <EditableTitle
-            value={playlist.name}
-            onChange={async (name) => {
-              await updatePlaylist({ name });
+            value={playlist?.title || ""}
+            onChange={async (title) => {
+              setPlaylist({ title });
             }}
             onModeChange={setEditableTitleMode}
           />
@@ -44,8 +46,18 @@ export const PagePlaylist = () => {
           my={3}
           loading={isCreatingTune}
           onClick={async () => {
-            const tune = await addTune();
-            navigate(`tunes/${tune?.id}`);
+            setPlaylist({
+              tunes: [
+                ...(playlist?.tunes || []),
+                {
+                  id: Math.random().toString(36).substring(7),
+                  title: "New Tune",
+                  tracks: [],
+                  createdAt: Timestamp.now(),
+                  isFavorited: false,
+                },
+              ],
+            });
           }}
           leftSection={<MdOutlinePlaylistAdd size={24} />}
           disabled={editableTitleMode === "edit"}
@@ -56,17 +68,7 @@ export const PagePlaylist = () => {
       <Container size="lg">
         <Stack>
           {(playlist?.tunes || []).map((tune) => (
-            <Button
-              variant="outline"
-              component={Link}
-              to={RoutePaths.Tune.replace(":tuneId", tune.id).replace(
-                ":playlistId",
-                playlist?.id,
-              )}
-              key={tune.id}
-            >
-              {tune.name}
-            </Button>
+            <TuneCard key={tune.id} tune={tune} />
           ))}
         </Stack>
       </Container>
