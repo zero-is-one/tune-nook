@@ -8,11 +8,13 @@ export const LayoutPage = ({
   children,
   leftSection,
   rightSection,
+  centerSection,
   ...props
 }: {
   children: ReactNode;
   leftSection?: ReactNode;
   rightSection?: ReactNode;
+  centerSection?: ReactNode;
 } & BoxComponentProps) => {
   const [signOut] = useSignOut(auth);
 
@@ -24,11 +26,7 @@ export const LayoutPage = ({
         {leftSection && (
           <Group
             gap={5}
-            onDoubleClick={() => {
-              signOut();
-            }}
             pl="md"
-            fw={"bold"}
             align={"center"}
             justify={"center"}
             pos={"absolute"}
@@ -45,11 +43,7 @@ export const LayoutPage = ({
         {rightSection && (
           <Group
             gap={5}
-            onDoubleClick={() => {
-              signOut();
-            }}
             pr="md"
-            fw={"bold"}
             align={"center"}
             justify={"center"}
             pos={"absolute"}
@@ -79,15 +73,16 @@ export const LayoutPage = ({
             transform: "translate(-50%, -50%)",
           }}
         >
-          <RiFileMusicFill size={24} />
-          TUNE NOOK
+          {!centerSection && (
+            <>
+              <RiFileMusicFill size={24} />
+              TUNE NOOK
+            </>
+          )}
+          {centerSection}
         </Group>
       </Box>
-      <Box
-        pb={"lg"}
-        h={`calc(100% - ${headerHeight}px)`}
-        style={{ overflow: "auto" }}
-      >
+      <Box h={`calc(100% - ${headerHeight}px)`} style={{ overflow: "auto" }}>
         {children}
       </Box>
     </Box>

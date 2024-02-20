@@ -45,8 +45,8 @@ export const EditableTitle = ({
   }
 
   return (
-    <Group align="center" w={"100%"}>
-      <Text size={"md"} maw="calc(100% - 38px)" truncate="end">
+    <Group align="center" w={"100%"} justify="center">
+      <Text size={"md"} maw="calc(100% - 48px)" truncate="end">
         {value}
       </Text>
       <ActionIcon
@@ -59,7 +59,7 @@ export const EditableTitle = ({
           onModeChange && onModeChange("edit");
         }}
       >
-        <MdEdit size={24} />
+        <MdEdit size={20} />
       </ActionIcon>
     </Group>
   );

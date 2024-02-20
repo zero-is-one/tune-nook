@@ -5,7 +5,7 @@ import { createRef } from "react";
 import { RxCountdownTimer } from "react-icons/rx";
 import ReactPlayer from "react-player";
 
-export const SongPreview = ({
+export const SongPreviewDrawer = ({
   disclosure,
   song,
 }: {
@@ -26,6 +26,8 @@ export const SongPreview = ({
           {song?.author} - {song?.title}
         </Text>
       }
+      offset={8}
+      radius={8}
     >
       <Group align="center" justify="center">
         <ActionIcon

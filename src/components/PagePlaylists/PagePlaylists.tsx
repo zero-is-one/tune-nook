@@ -20,7 +20,6 @@ import { HiDotsHorizontal } from "react-icons/hi";
 import { TbPlaylistAdd } from "react-icons/tb";
 import { Link } from "react-router-dom";
 import { LayoutPage } from "../LayoutPage/LayoutPage";
-import { RequireAuth } from "../RequireAuth/RequireAuth";
 import { NewPlaylistDrawer } from "./NewPlaylistDrawer";
 
 export const PagePlaylists = () => {
@@ -31,7 +30,7 @@ export const PagePlaylists = () => {
   } = usePlaylists();
   const drawerDisclosure = useDisclosure();
   return (
-    <RequireAuth>
+    <>
       <LayoutPage>
         <Container>
           <Group py={"md"} justify="space-between">
@@ -105,6 +104,6 @@ export const PagePlaylists = () => {
         </Container>
       </LayoutPage>
       <NewPlaylistDrawer disclosure={drawerDisclosure} />
-    </RequireAuth>
+    </>
   );
 };

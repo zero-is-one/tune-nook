@@ -1,21 +1,13 @@
 import { atom } from "jotai";
-import { Playlist } from "./types";
+import { Playlist, Track, Tune } from "./types";
 
 export const playlistsAtom = atom<Playlist[]>([]);
-
-export const playlistIdAtom = atom<string | null>(null);
-export const playlistAtom = atom<Playlist | null, [Partial<Playlist>], void>(
-  (get) => {
-    const playlists = get(playlistsAtom);
-    const playlistId = get(playlistIdAtom);
-    return playlists.find((p) => p.id === playlistId) || null;
-  },
-  (get, set, updatedPlaylist) => {
-    const playlists = [...get(playlistsAtom)];
-    const playlistId = get(playlistIdAtom);
-    const index = playlists.findIndex((p) => p.id === playlistId);
-
-    playlists[index] = { ...playlists[index], ...updatedPlaylist };
-    set(playlistsAtom, playlists);
-  },
-);
+//export const selectedPlaylistAtom = atom<Playlist | undefined>(undefined);
+export const selectedTuneAtom = atom<Tune | undefined>(undefined);
+export const selectedTrackAtom = atom<Track | undefined>((get) => {
+  const selectedTune = get(selectedTuneAtom);
+  return (
+    selectedTune?.tracks.find((t) => t.id === selectedTune?.selectedTrackId) ||
+    selectedTune?.tracks[0]
+  );
+});

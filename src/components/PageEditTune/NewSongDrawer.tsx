@@ -3,7 +3,7 @@ import { Button, Drawer, Stack, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 
-export const NewSongPane = ({
+export const NewSongDrawer = ({
   disclosure,
   onComplete,
 }: {
@@ -31,6 +31,7 @@ export const NewSongPane = ({
         onSubmit={form.onSubmit(() => {
           onComplete(form.values as Song);
           close();
+          form.reset();
         })}
       >
         {" "}

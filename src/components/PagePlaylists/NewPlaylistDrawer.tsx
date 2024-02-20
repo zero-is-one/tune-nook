@@ -27,6 +27,8 @@ export const NewPlaylistDrawer = ({
       position="bottom"
       size={224}
       title="Create New Playlist"
+      offset={8}
+      radius="md"
     >
       <form
         onSubmit={form.onSubmit((values) => {

@@ -1,77 +1,76 @@
-import { playlistAtom } from "@/atoms";
+import { selectedTuneAtom } from "@/atoms";
 import { EditableTitle } from "@/components/EditableTitle/EditableTitle";
 import { LayoutPage } from "@/components/LayoutPage/LayoutPage";
-import { useUpdatePlaylistAtom } from "@/hooks/useUpdatePlaylistAtom";
-import { Box, Button, Container, Group, Stack } from "@mantine/core";
-import { Timestamp } from "firebase/firestore";
-import { useAtom } from "jotai";
-import { useState } from "react";
+
+import { useUpdatePlaylist } from "@/hooks/useStore";
+import { ActionIcon, Box, Container, Group, Stack, Text } from "@mantine/core";
+import { useSetAtom } from "jotai";
+import { useEffect } from "react";
+import { FaArrowTrendUp } from "react-icons/fa6";
 import { MdOutlinePlaylistAdd } from "react-icons/md";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { BackButton } from "../BackButton/BackButton";
+import { Player } from "./Player";
 import { TuneCard } from "./TuneCard";
 
 export const PagePlaylist = () => {
-  useUpdatePlaylistAtom();
-  const navigate = useNavigate();
-  const [playlist, setPlaylist] = useAtom(playlistAtom);
-  const [editableTitleMode, setEditableTitleMode] = useState<"view" | "edit">(
-    "view",
-  );
+  const setSelctedTune = useSetAtom(selectedTuneAtom);
+  const { update: updatePlaylist, playlist: selectedPlaylist } =
+    useUpdatePlaylist();
 
-  if (!playlist) return "Loading playlist...";
+  useEffect(() => {
+    setSelctedTune(undefined);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const isCreatingTune = false;
+  if (!selectedPlaylist) return "Loading Playlistxx...";
 
   return (
-    <LayoutPage leftSection={<BackButton />}>
-      <Group
-        bg={"gray.2"}
-        justify="space-between"
-        p={"md"}
-        align="center"
-        mb={"sm"}
-      >
-        <Box style={{ flex: 1 }}>
+    <LayoutPage
+      leftSection={<BackButton path="/" />}
+      centerSection={
+        <Group w="calc(100vw - 200px)" align="center" justify="center">
           <EditableTitle
-            value={playlist?.title || ""}
+            value={selectedPlaylist?.title || ""}
             onChange={async (title) => {
-              setPlaylist({ title });
+              updatePlaylist({ title });
             }}
-            onModeChange={setEditableTitleMode}
           />
-        </Box>
+        </Group>
+      }
+      rightSection={
+        <ActionIcon size={"lg"} component={Link} to={`tunes/new`}>
+          <MdOutlinePlaylistAdd size={"60%"} />
+        </ActionIcon>
+      }
+    >
+      <Stack h={"100%"} gap={0} style={{ overflow: "hidden" }}>
+        <Box flex={1} style={{ overflow: "auto" }}>
+          <Container py="md">
+            <Stack>
+              {selectedPlaylist.tunes.map((tune) => (
+                <TuneCard key={tune.id} tune={tune} />
+              ))}
 
-        <Button
-          my={3}
-          loading={isCreatingTune}
-          onClick={async () => {
-            setPlaylist({
-              tunes: [
-                ...(playlist?.tunes || []),
-                {
-                  id: Math.random().toString(36).substring(7),
-                  title: "New Tune",
-                  tracks: [],
-                  createdAt: Timestamp.now(),
-                  isFavorited: false,
-                },
-              ],
-            });
-          }}
-          leftSection={<MdOutlinePlaylistAdd size={24} />}
-          disabled={editableTitleMode === "edit"}
-        >
-          New Tune
-        </Button>
-      </Group>
-      <Container size="lg">
-        <Stack>
-          {(playlist?.tunes || []).map((tune) => (
-            <TuneCard key={tune.id} tune={tune} />
-          ))}
-        </Stack>
-      </Container>
+              {selectedPlaylist.tunes.length === 0 && (
+                <Text fw={"bold"} py="md" px="xl" ta={"right"}>
+                  Add a tune
+                  <FaArrowTrendUp
+                    size={40}
+                    style={{
+                      position: "relative",
+                      top: -5,
+                      left: 5,
+                      transform: "rotate(-15deg)",
+                    }}
+                  />
+                </Text>
+              )}
+            </Stack>
+          </Container>
+        </Box>
+        <Player />
+      </Stack>
     </LayoutPage>
   );
 };
