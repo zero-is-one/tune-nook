@@ -1,5 +1,5 @@
-import { selectedTuneAtom } from "@/atoms";
-import { useUpdateTrack } from "@/hooks/useStore";
+import { selectedTrackAtom, selectedTuneAtom } from "@/atoms";
+import { useUpdateTrack, useUpdateTune } from "@/hooks/useStore";
 import { Box, Button, Group, Menu, Text } from "@mantine/core";
 import { usePrevious } from "@mantine/hooks";
 import { useAtomValue } from "jotai";
@@ -10,17 +10,17 @@ import { MdOutlineStart } from "react-icons/md";
 import ReactPlayer from "react-player";
 
 export const Player = () => {
+  const { update: updateTune } = useUpdateTune();
   const { update: updateTrack } = useUpdateTrack();
   const [hidden, setHidden] = useState(true);
   const selectedTune = useAtomValue(selectedTuneAtom);
+  const selectedTrack = useAtomValue(selectedTrackAtom);
   const previousSelectedTune = usePrevious(selectedTune);
   const playerWidth = 310 / 1.5;
   const playerHeight = 174 / 1.5;
-
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   const playerRef = useRef<ReactPlayer>(null);
-  //const setSelectedTrack = useSetAtom(selectedTrackAtom);
 
   useEffect(() => {
     //console.log({ selectedTune, previousSelectedTune });
@@ -30,13 +30,7 @@ export const Player = () => {
     if (previousSelectedTune?.id !== selectedTune?.id) setHidden(false);
   }, [selectedTune, previousSelectedTune, setHidden]);
 
-  const track =
-    selectedTune?.tracks.find((t) => t.id === selectedTune?.selectedTrackId) ||
-    selectedTune?.tracks[0];
-
-  console.log({ track });
-
-  if (!track) return "No track found.";
+  if (!selectedTrack) return "No track found.";
 
   return (
     <Box
@@ -49,7 +43,7 @@ export const Player = () => {
           <Menu position={"top"} shadow="lg" withArrow arrowPosition="center">
             <Menu.Target>
               <Button w={"100%"} h={"100%"} fz={16}>
-                {track.playbackRate} 𝑥
+                {selectedTrack.playbackRate} 𝑥
               </Button>
             </Menu.Target>
             <Menu.Dropdown>
@@ -57,7 +51,7 @@ export const Player = () => {
                 <Menu.Item
                   key={speed}
                   onClick={() => {
-                    updateTrack({ playbackRate: speed });
+                    updateTrack({ playbackRate: speed || 1 });
                   }}
                 >
                   <Text ta={"center"} truncate="end">
@@ -72,14 +66,19 @@ export const Player = () => {
           <Menu position={"top"} shadow="lg" withArrow arrowPosition="center">
             <Menu.Target>
               <Button w={"100%"} h={"100%"} fz={16}>
-                {track.song.author + "- " + track.song.title}
+                {selectedTrack.song.author + "- " + selectedTrack.song.title}
               </Button>
             </Menu.Target>
             <Menu.Dropdown>
               {selectedTune?.tracks.map((t) => (
-                <Menu.Item key={t.id} w={"90vw"}>
+                <Menu.Item
+                  key={t.id}
+                  w={"90vw"}
+                  onClick={() => {
+                    updateTune({ selectedTrackId: t.id });
+                  }}
+                >
                   <Text truncate="end">
-                    {" "}
                     {t.song.author + " - " + t.song.title}{" "}
                   </Text>
                 </Menu.Item>
@@ -117,8 +116,10 @@ export const Player = () => {
           ref={playerRef}
           width={playerWidth}
           height={playerHeight}
-          url={track.song.url}
+          url={selectedTrack.song.url}
           playing={isPlaying}
+          playbackRate={selectedTrack.playbackRate}
+          key={selectedTrack.song.url + selectedTrack.playbackRate}
         />
         <Box flex={1} px="xs">
           <Button w={"100%"} h={"100%"}>

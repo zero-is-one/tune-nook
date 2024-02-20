@@ -23,7 +23,7 @@ export const PagePlaylist = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (!selectedPlaylist) return "Loading Playlistxx...";
+  if (!selectedPlaylist) return "Loading Playlist...";
 
   return (
     <LayoutPage

@@ -1,23 +1,35 @@
-import { playlistsAtom, selectedTrackAtom, selectedTuneAtom } from "@/atoms";
+import {
+  playlistsAtom,
+  selectedPlaylistAtom,
+  selectedTrackAtom,
+  selectedTuneAtom,
+} from "@/atoms";
 import { Playlist, Track, Tune } from "@/types";
 import { useAtom, useAtomValue } from "jotai";
+import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 
-export const useUpdatePlaylist = (playlist?: Playlist) => {
-  const { playlistId: playlistIdParams } = useParams();
-  const playlistId = playlist?.id || playlistIdParams;
+export const useUpdatePlaylist = () => {
+  const { playlistId } = useParams();
   const [playlists, setPlaylists] = useAtom(playlistsAtom);
+  const [selectedPlaylist, setSelectedPlaylist] = useAtom(selectedPlaylistAtom);
+  const playlist = playlists.find((p) => p.id === playlistId);
+
+  useEffect(() => {
+    setSelectedPlaylist(playlist);
+  }, [playlist, setSelectedPlaylist]);
 
   if (!playlistId) throw new Error("No playlist id found.");
 
   const update = (updates: Partial<Playlist>) => {
-    console.log({ updates, playlists });
     setPlaylists(
-      playlists.map((p) => (p.id === playlistId ? { ...p, ...updates } : p)),
+      playlists.map((p) =>
+        p.id === selectedPlaylist?.id ? { ...p, ...updates } : p,
+      ),
     );
   };
 
-  return { update, playlist: playlists.find((p) => p.id === playlistId) };
+  return { update, playlist };
 };
 
 export const useUpdateTune = (tune?: Tune) => {
