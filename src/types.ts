@@ -21,7 +21,6 @@ export type Tune = {
   title: string;
   createdAt: Timestamp;
   selectedTrackId?: string;
-  isFavorited: boolean;
   tracks: Track[];
 };
 

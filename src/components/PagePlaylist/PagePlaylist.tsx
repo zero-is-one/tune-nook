@@ -69,7 +69,7 @@ export const PagePlaylist = () => {
             </Stack>
           </Container>
         </Box>
-        <Player />
+        <Player playlist={selectedPlaylist} />
       </Stack>
     </LayoutPage>
   );

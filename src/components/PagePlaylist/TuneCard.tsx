@@ -7,15 +7,21 @@ import { useAtom } from "jotai";
 import { BiTrash } from "react-icons/bi";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { PiPencilBold } from "react-icons/pi";
-import { TbStar, TbStarFilled } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 
 export const TuneCard = ({ tune }: { tune: Tune }) => {
   const navigate = useNavigate();
   const { update: updatedPlaylist, playlist } = useUpdatePlaylist();
   const [selectedTune, setSelectedTune] = useAtom(selectedTuneAtom);
-  const lastPlayedAt = undefined;
-  const daysAgoPlayed = 1;
+
+  const track =
+    tune.tracks.find((t) => t.id === tune.selectedTrackId) || tune.tracks[0];
+  const lastPlayedAt = track?.lastPlayedAt?.toDate();
+  const daysSinceLastPlayed = lastPlayedAt
+    ? Math.floor(
+        (new Date().getTime() - lastPlayedAt.getTime()) / (1000 * 60 * 60 * 24),
+      )
+    : 0;
 
   return (
     <Paper
@@ -42,26 +48,13 @@ export const TuneCard = ({ tune }: { tune: Tune }) => {
           <Text size={"xs"}>
             {!lastPlayedAt
               ? "Never played before."
-              : `Played ${daysAgoPlayed} days ago`}
+              : daysSinceLastPlayed === 0
+                ? "Last played today."
+                : `Played ${daysSinceLastPlayed} days ago`}{" "}
+            - {track?.playCount} plays
           </Text>
         </Stack>
         <Group gap={0} justify="center" align="center">
-          <ActionIcon
-            size={50}
-            color={tune.isFavorited ? "blue" : "dimmed"}
-            variant="transparent"
-            onClick={() => {
-              updatedPlaylist({
-                tunes: playlist?.tunes?.map((t) =>
-                  t.id === tune?.id ? { ...t, isFavorited: !t.isFavorited } : t,
-                ),
-              });
-            }}
-          >
-            {!tune.isFavorited && <TbStar size={"60%"} />}
-            {tune.isFavorited && <TbStarFilled size={"60%"} />}
-          </ActionIcon>
-
           <Menu shadow="md" width={100} position="right">
             <Menu.Target>
               <ActionIcon size={50} color="dimmed" variant="transparent">

@@ -40,7 +40,6 @@ export const PageEditTune = () => {
       ? ({
           id: Math.random().toString().substring(2),
           title: "",
-          isFavorited: false,
           tracks: [],
           createdAt: Timestamp.now(),
         } satisfies Tune)
@@ -71,7 +70,7 @@ export const PageEditTune = () => {
       tunes,
     });
 
-    navigate(RoutePaths.Playlist.replace(":playlistId", playlist.id));
+    navigate(RoutePaths.Playlist.replace(":playlistId", selectedPlaylist.id));
   };
 
   const recomendedSongs = useMemo(() => {
