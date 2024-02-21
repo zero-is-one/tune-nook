@@ -34,6 +34,9 @@ export const selectedTrackAtom = atom((get) => {
   );
 });
 
+export const tuneCloneToAtom = atom<Tune | undefined>(undefined);
+export const tuneMoveToAtom = atom<Tune | undefined>(undefined);
+
 // atom<Track | undefined>((get) => {
 //   const selectedTune = get(selectedTuneAtom);
 //   return (

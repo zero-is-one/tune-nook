@@ -11,6 +11,7 @@ import { MdOutlinePlaylistAdd } from "react-icons/md";
 import { Link } from "react-router-dom";
 import { BackButton } from "../BackButton/BackButton";
 import { Player } from "./Player";
+import { PlaylistSelectDrawer } from "./PlaylistSelectDrawer";
 import { TuneCard } from "./TuneCard";
 
 export const PagePlaylist = () => {
@@ -71,6 +72,7 @@ export const PagePlaylist = () => {
         </Box>
         <Player playlist={selectedPlaylist} />
       </Stack>
+      <PlaylistSelectDrawer />
     </LayoutPage>
   );
 };

@@ -1,11 +1,13 @@
-import { selectedTuneAtom } from "@/atoms";
+import { selectedTuneAtom, tuneCloneToAtom, tuneMoveToAtom } from "@/atoms";
 import { useUpdatePlaylist } from "@/hooks/useStore";
 import { RoutePaths } from "@/router";
 import { Tune } from "@/types";
 import { ActionIcon, Group, Menu, Paper, Stack, Text } from "@mantine/core";
-import { useAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 import { BiTrash } from "react-icons/bi";
+import { FaRegClone } from "react-icons/fa";
 import { HiDotsHorizontal } from "react-icons/hi";
+import { IoEnterOutline } from "react-icons/io5";
 import { PiPencilBold } from "react-icons/pi";
 import { useNavigate } from "react-router-dom";
 
@@ -13,7 +15,8 @@ export const TuneCard = ({ tune }: { tune: Tune }) => {
   const navigate = useNavigate();
   const { update: updatedPlaylist, playlist } = useUpdatePlaylist();
   const [selectedTune, setSelectedTune] = useAtom(selectedTuneAtom);
-
+  const setCloneTo = useSetAtom(tuneCloneToAtom);
+  const setMoveTo = useSetAtom(tuneMoveToAtom);
   const track =
     tune.tracks.find((t) => t.id === tune.selectedTrackId) || tune.tracks[0];
   const lastPlayedAt = track?.lastPlayedAt?.toDate();
@@ -55,13 +58,31 @@ export const TuneCard = ({ tune }: { tune: Tune }) => {
           </Text>
         </Stack>
         <Group gap={0} justify="center" align="center">
-          <Menu shadow="md" width={100} position="right">
+          <Menu shadow="md" width={120} position="right">
             <Menu.Target>
               <ActionIcon size={50} color="dimmed" variant="transparent">
                 <HiDotsHorizontal size={"60%"} />
               </ActionIcon>
             </Menu.Target>
             <Menu.Dropdown>
+              <Menu.Item
+                leftSection={<FaRegClone size={20} />}
+                onClick={() => {
+                  setCloneTo(tune);
+                }}
+              >
+                Clone To
+              </Menu.Item>
+
+              <Menu.Item
+                leftSection={<IoEnterOutline size={20} />}
+                onClick={() => {
+                  setMoveTo(tune);
+                }}
+              >
+                Move To
+              </Menu.Item>
+
               <Menu.Item
                 color="blue"
                 leftSection={<PiPencilBold size={20} />}
