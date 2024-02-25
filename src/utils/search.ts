@@ -1,4 +1,6 @@
 import library from "@/assets/library.json";
+import names from "@/assets/names.json";
+import { OptionsFilter } from "@mantine/core";
 import stringSimilarity from "string-similarity-js";
 
 export const searchSongs = (title: string) => {
@@ -14,13 +16,31 @@ export const searchSongs = (title: string) => {
         .slice(0, 10);
 };
 
+export const searchNames = (name: string) => {
+  return name.length < 4
+    ? []
+    : names
+        .filter(
+          (songName) =>
+            stringSimilarity(clean(songName), clean(name)) > 0.53 ||
+            clean(songName).includes(clean(name)) ||
+            clean(name).includes(clean(songName)),
+        )
+        .slice(0, 10);
+};
+
+export const searchNamesFilter: OptionsFilter = ({ search }) => {
+  const names = searchNames(search).slice(0, 10);
+  return names.map((name) => ({ value: name, label: name }));
+};
+
 const clean = (s: string) => {
   return s
     .toLowerCase()
     .replace("slip jig", "")
-    .replace("the", "")
-    .replace(", ", " ")
     .replace(", the", " ")
+    .replace("the ", "")
+    .replace(", ", " ")
     .replace("jig", "")
     .replace("reel", "")
     .replace("hornpipe", "")

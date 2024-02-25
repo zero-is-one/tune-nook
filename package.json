@@ -9,7 +9,7 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "deploy:rules": "firebase deploy --only firestore:rules",
-    "deploy:hosting": "firebase deploy --only hosting"
+    "deploy:hosting": "npm build && firebase deploy --only hosting"
   },
   "dependencies": {
     "@mantine/core": "^7.5.2",

@@ -35,7 +35,12 @@ import {
 
 TimeAgo.addDefaultLocale(en);
 const timeAgo = new TimeAgo("en-US");
-const TuneFilterOptions = ["Last Played", "Alphabetical", "Created"] as const;
+const TuneFilterOptions = [
+  "Last Played",
+  "Alphabetical",
+  "Created, newest",
+  "Created, oldest",
+] as const;
 type TuneFilterOption = (typeof TuneFilterOptions)[number];
 
 export const PagePlaylist = () => {
@@ -63,8 +68,8 @@ export const PagePlaylist = () => {
   }
   if (selectedFilter === "Last Played") {
     filteredTunes.sort((a, b) =>
-      (a.lastPlayedAt || Timestamp.now()).toDate() >
-      (b.lastPlayedAt || Timestamp.now()).toDate()
+      (b.lastPlayedAt || Timestamp.fromMillis(0)).toDate() >
+      (a.lastPlayedAt || Timestamp.fromMillis(0)).toDate()
         ? -1
         : 1,
     );
@@ -72,10 +77,13 @@ export const PagePlaylist = () => {
   if (selectedFilter === "Alphabetical") {
     filteredTunes.sort((a, b) => (a.title > b.title ? 1 : -1));
   }
-  if (selectedFilter === "Created") {
+  if (selectedFilter.includes("Created")) {
     filteredTunes.sort((a, b) =>
       a.createdAt.toDate() > b.createdAt.toDate() ? -1 : 1,
     );
+  }
+  if (selectedFilter === "Created, oldest") {
+    filteredTunes.reverse();
   }
 
   const onSelectedPlaylistFromDrawer = async (
@@ -154,7 +162,7 @@ export const PagePlaylist = () => {
               }}
             />
             <Select
-              w={150}
+              w={160}
               data={TuneFilterOptions}
               value={selectedFilter}
               onChange={(value) => {
@@ -178,13 +186,13 @@ export const PagePlaylist = () => {
                 key={tune.id}
                 title={tune.title}
                 subtitle={
-                  <Group>
-                    <Group gap={4}>
-                      <RiEyeFill size={16} />
+                  <Group component={"span"}>
+                    <Group component={"span"} gap={4}>
+                      <RiEyeFill size={14} />
                       <span>{tune.playCount}</span>
                     </Group>
-                    <Group gap={4}>
-                      <RiCalendarFill size={16} />
+                    <Group component={"span"} gap={4}>
+                      <RiCalendarFill size={14} />
                       <span>
                         {!tune.lastPlayedAt
                           ? "--"

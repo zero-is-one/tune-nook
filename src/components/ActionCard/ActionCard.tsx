@@ -27,7 +27,7 @@ export const ActionCard = ({
         >
           {leftSection && <Group align="center">{leftSection}</Group>}
           <Stack gap={0}>
-            <Text size={"sm"}>{title}</Text>
+            <Text size={"md"}>{title}</Text>
             <Text size={"xs"}>{subtitle}</Text>
           </Stack>
         </Group>

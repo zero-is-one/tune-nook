@@ -1,3 +1,4 @@
+import names from "@/assets/names.json";
 import { ActionCard } from "@/components/ActionCard/ActionCard";
 import { Header } from "@/components/Header/Header";
 import { LayoutFullScreen } from "@/components/LayoutFullScreen/LayoutFullScreen";
@@ -6,15 +7,15 @@ import { useTune, useUpdateTune } from "@/hooks/useTune";
 import { useCreateTune } from "@/hooks/useTunes";
 import { Route } from "@/router";
 import { Song, Track, Tune } from "@/types";
-import { searchSongs } from "@/utils/searchSongs";
+import { searchNamesFilter, searchSongs } from "@/utils/search";
 import {
   ActionIcon,
+  Autocomplete,
   Button,
   Card,
   Container,
   Input,
   Stack,
-  TextInput,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDebouncedValue, useDisclosure, usePrevious } from "@mantine/hooks";
@@ -118,11 +119,13 @@ export const PageEditTune = () => {
         >
           <Container py={"md"} {...(loading ? { display: "none" } : null)}>
             <Stack>
-              <TextInput
+              <Autocomplete
                 data-autofocus
                 required
                 label="Tune Name"
                 placeholder="Enter tune name..."
+                filter={searchNamesFilter}
+                data={names}
                 {...form.getInputProps("title")}
               />
 
