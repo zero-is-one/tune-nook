@@ -1,38 +1,102 @@
-import { playlistsAtom } from "@/atoms";
-import { playlistsRef } from "@/components/AtomStoreProvider/AtomStoreProvider";
-import { auth } from "@/firebase";
+import { auth, firestore } from "@/firebase";
 import { Playlist } from "@/types";
-import { Timestamp, deleteDoc, doc } from "firebase/firestore";
-import { useAtom } from "jotai";
+import {
+  Timestamp,
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  query,
+  where,
+} from "firebase/firestore";
+import { useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
+import { useCollection } from "react-firebase-hooks/firestore";
+
+export const ref = collection(firestore, "playlists");
 
 export const usePlaylists = () => {
   const [user] = useAuthState(auth);
-  const [playlists, setPlaylists] = useAtom(playlistsAtom);
+  const q = query(
+    ref,
+    where("creatorId", "==", user?.uid || "none"),
+    where("isDeleted", "==", false),
+  );
+  const [snapshot, loading, error] = useCollection(user ? q : null);
+  const playlists = snapshot
+    ? (snapshot.docs.map((doc) => ({
+        ...doc.data(),
+        id: doc.id,
+      })) as Playlist[])
+    : undefined;
 
-  const create = (
-    playlist: Omit<Playlist, "id" | "createdAt" | "creatorId">,
-  ) => {
+  return [playlists, loading, error] as const;
+};
+
+export const useCreatePlaylist = () => {
+  const [user] = useAuthState(auth);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const create = (playlist: Partial<Playlist>) => {
     if (!user) throw new Error("User is not authenticated");
-    const newPlaylist = {
+    setLoading(true);
+    setError(null);
+
+    return addDoc(ref, {
       ...playlist,
-      id: doc(playlistsRef).id,
-      creatorId: user.uid,
+      creatorId: user?.uid,
       createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
+      isDeleted: false,
+    } as Partial<Playlist>)
+      .catch((error) => {
+        setError(error);
+      })
+      .finally(() => setLoading(false));
+  };
+
+  return [create, loading, error] as const;
+};
+
+export const useRemovePlaylist = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const remove = async (playlist: Playlist) => {
+    setLoading(true);
+    setError(null);
+
+    return deleteDoc(doc(ref, playlist.id))
+      .catch((error) => {
+        setError(error);
+      })
+      .finally(() => setLoading(false));
+  };
+
+  return [remove, loading, error] as const;
+};
+
+export const useClonePlaylist = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const clone = async (playlist: Playlist) => {
+    setLoading(true);
+    setError(null);
+
+    const newPlaylist: Playlist = {
+      ...playlist,
+      title: playlist.title + " (copy)",
     };
+    delete (newPlaylist as Partial<Playlist>).id;
 
-    setPlaylists((p) => [...p, newPlaylist]);
-    return newPlaylist;
+    return addDoc(ref, newPlaylist)
+      .catch((error) => {
+        setError(error);
+      })
+      .finally(() => setLoading(false));
   };
 
-  const remove = (playlist: Playlist) => {
-    setPlaylists((p) => p.filter((curr) => curr.id !== playlist.id));
-    deleteDoc(doc(playlistsRef, playlist.id));
-  };
-
-  const clone = (playlist: Playlist) => {
-    create(playlist);
-  };
-
-  return { playlists, create, remove, clone };
+  return [clone, loading, error] as const;
 };

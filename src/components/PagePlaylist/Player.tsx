@@ -1,10 +1,8 @@
-import { selectedTrackAtom, selectedTuneAtom } from "@/atoms";
-import { useUpdateTrack, useUpdateTune } from "@/hooks/useStore";
-import { Playlist } from "@/types";
+import { useSelectedTrack, useUpdateTrack } from "@/hooks/useTrack";
+import { useUpdateTune } from "@/hooks/useTune";
+import { Tune } from "@/types";
 import { Box, Button, Group, Menu, Stack, Text } from "@mantine/core";
-import { usePrevious } from "@mantine/hooks";
 import { Timestamp } from "firebase/firestore";
-import { useAtom, useAtomValue } from "jotai";
 import { useEffect, useRef, useState } from "react";
 import { FaAngleDown, FaPause, FaPlay } from "react-icons/fa";
 import { IoPlaySkipForward } from "react-icons/io5";
@@ -12,31 +10,33 @@ import { MdOutlineStart } from "react-icons/md";
 import { TbRepeat, TbRepeatOff } from "react-icons/tb";
 import ReactPlayer from "react-player";
 
-export const Player = ({ playlist }: { playlist: Playlist }) => {
-  const { update: updateTune } = useUpdateTune();
-  const { update: updateTrack } = useUpdateTrack();
-  const [hidden, setHidden] = useState(true);
+export const Player = ({
+  tune,
+  onClose,
+  onNext,
+}: {
+  tune: Tune | undefined;
+  onClose?: () => void;
+  onNext?: () => void;
+}) => {
+  const [updateTune] = useUpdateTune(tune);
+  const selectedTrack = useSelectedTrack(tune);
+  const [updateTrack] = useUpdateTrack(tune);
+
+  //const previousSelectedTune = usePrevious(selectedTune);
+  const playerWidth = 310 / 1.5;
+  const playerHeight = 174 / 1.5;
+
+  // React-Player variables
+  const playerRef = useRef<ReactPlayer>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [duration, setDuration] = useState(0);
+  const [playedSeconds, setPlayedSeconds] = useState(0);
+
   const [loop, setLoop] = useState<{
     start: undefined | number;
     end: undefined | number;
   }>({ start: undefined, end: undefined });
-  const [selectedTune, setSelectedTune] = useAtom(selectedTuneAtom);
-  const selectedTrack = useAtomValue(selectedTrackAtom);
-  const previousSelectedTune = usePrevious(selectedTune);
-  const playerWidth = 310 / 1.5;
-  const playerHeight = 174 / 1.5;
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [duration, setDuration] = useState(0);
-  const [playedSeconds, setPlayedSeconds] = useState(0);
-  const playerRef = useRef<ReactPlayer>(null);
-
-  useEffect(() => {
-    //console.log({ selectedTune, previousSelectedTune });
-    if (previousSelectedTune === null && selectedTune !== null)
-      setHidden(false);
-
-    if (previousSelectedTune?.id !== selectedTune?.id) setHidden(false);
-  }, [selectedTune, previousSelectedTune, setHidden]);
 
   useEffect(() => {
     if (!selectedTrack) return;
@@ -59,23 +59,27 @@ export const Player = ({ playlist }: { playlist: Playlist }) => {
     if (playedSeconds - selectedTrack.startTime < 6) return;
     if (playedSeconds - selectedTrack.startTime > 7) return;
     if (
-      selectedTrack?.lastPlayedAt &&
-      Math.abs(selectedTrack?.lastPlayedAt?.seconds - Timestamp.now().seconds) <
-        8
+      tune?.lastPlayedAt &&
+      Math.abs(tune?.lastPlayedAt?.seconds - Timestamp.now().seconds) < 8
     )
       return;
 
-    updateTrack({
+    updateTune({
       lastPlayedAt: Timestamp.now(),
-      playCount: selectedTrack.playCount + 1,
+      playCount: (tune?.playCount || 0) + 1,
     });
 
-    console.log("Track Played");
-  }, [playedSeconds, selectedTrack, selectedTrack?.startTime, updateTrack]);
+    console.log("Played!");
+  }, [
+    playedSeconds,
+    selectedTrack,
+    tune?.lastPlayedAt,
+    tune?.playCount,
+    updateTune,
+  ]);
 
-  if (!selectedTrack) return "No track found.";
-
-  if (hidden) return <></>;
+  if (!selectedTrack) return null;
+  if (!tune) return null;
 
   return (
     <Box
@@ -96,7 +100,7 @@ export const Player = ({ playlist }: { playlist: Playlist }) => {
                 <Menu.Item
                   key={speed}
                   onClick={() => {
-                    updateTrack({ playbackRate: speed || 1 });
+                    updateTrack({ playbackRate: speed });
                   }}
                 >
                   <Text ta={"right"} truncate="end">
@@ -115,7 +119,7 @@ export const Player = ({ playlist }: { playlist: Playlist }) => {
               </Button>
             </Menu.Target>
             <Menu.Dropdown>
-              {selectedTune?.tracks.map((t) => (
+              {tune?.tracks.map((t) => (
                 <Menu.Item
                   key={t.id}
                   w={"90vw"}
@@ -133,12 +137,11 @@ export const Player = ({ playlist }: { playlist: Playlist }) => {
         </Box>
         <Box flex={1} p="xs">
           <Button
+            color="gray"
+            variant="light"
             w={"100%"}
             h={"100%"}
-            pos="relative"
-            top={-10}
-            style={{ borderTopLeftRadius: 0, borderTopRightRadius: 0 }}
-            onClick={() => setHidden(true)}
+            onClick={() => onClose && onClose()}
           >
             <FaAngleDown size={23} />
           </Button>
@@ -164,7 +167,7 @@ export const Player = ({ playlist }: { playlist: Playlist }) => {
           url={selectedTrack.song.url}
           playing={isPlaying}
           playbackRate={selectedTrack.playbackRate}
-          key={selectedTrack.song.url + selectedTrack.playbackRate}
+          key={selectedTrack.song.url}
           controls={false}
           onPlay={() => {
             setIsPlaying(true);
@@ -181,17 +184,7 @@ export const Player = ({ playlist }: { playlist: Playlist }) => {
           }}
         />
         <Box flex={1} px="xs">
-          <Button
-            w={"100%"}
-            h={"100%"}
-            onClick={() => {
-              const index = playlist.tunes.findIndex(
-                (t) => t.id === selectedTune?.id,
-              );
-
-              setSelectedTune(playlist.tunes[index + 1]);
-            }}
-          >
+          <Button w={"100%"} h={"100%"} onClick={() => onNext && onNext()}>
             <IoPlaySkipForward size={20} />
           </Button>
         </Box>

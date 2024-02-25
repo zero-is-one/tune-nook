@@ -1,289 +1,214 @@
-import library from "@/assets/library.json";
-import { LayoutPage } from "@/components/LayoutPage/LayoutPage";
-import { useUpdatePlaylist } from "@/hooks/useStore";
-import { RoutePaths } from "@/router";
-import { Song, Tune } from "@/types";
+import { ActionCard } from "@/components/ActionCard/ActionCard";
+import { Header } from "@/components/Header/Header";
+import { LayoutFullScreen } from "@/components/LayoutFullScreen/LayoutFullScreen";
+import { usePlaylist } from "@/hooks/usePlaylist";
+import { useTune, useUpdateTune } from "@/hooks/useTune";
+import { useCreateTune } from "@/hooks/useTunes";
+import { Route } from "@/router";
+import { Song, Track, Tune } from "@/types";
+import { searchSongs } from "@/utils/searchSongs";
 import {
   ActionIcon,
   Button,
   Card,
   Container,
-  Divider,
-  Group,
+  Input,
   Stack,
-  Text,
   TextInput,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { useDisclosure } from "@mantine/hooks";
-import { Timestamp } from "firebase/firestore";
-import { useMemo, useState } from "react";
-import { FaPlusCircle } from "react-icons/fa";
-import { IoMdCloseCircle } from "react-icons/io";
-import { IoPlayCircleOutline } from "react-icons/io5";
-import { useNavigate, useParams } from "react-router-dom";
-import stringSimilarity from "string-similarity-js";
-import { NewSongDrawer } from "./NewSongDrawer";
+import { useDebouncedValue, useDisclosure, usePrevious } from "@mantine/hooks";
+import { useEffect, useMemo, useState } from "react";
+import { CiBookmarkRemove, CiCirclePlus } from "react-icons/ci";
+import { IoArrowBack, IoPlayCircleOutline } from "react-icons/io5";
+import { Link, useNavigate } from "react-router-dom";
+import { CreateSongDrawer } from "./CreateSongDrawer";
 import { SongPreviewDrawer } from "./SongPreviewDrawer";
 
 export const PageEditTune = () => {
   const navigate = useNavigate();
-  const { update: updatePlaylist, playlist: selectedPlaylist } =
-    useUpdatePlaylist();
-  const { tuneId } = useParams<{ tuneId: string }>();
-  const newSongDisclosure = useDisclosure(false);
-  const previewDisclosure = useDisclosure(false);
-  const [previewSong, setPreviewSong] = useState<Song | undefined>();
+  const [previewSong, setPreviewSong] = useState<Song | null>(null);
+  const createSongDisclosure = useDisclosure();
+  const [playlist] = usePlaylist();
+  const [currentTune, loading] = useTune();
+  const [create, createLoading] = useCreateTune();
+  const [update, updateLoading] = useUpdateTune();
+  const previouCurrentTune = usePrevious(currentTune);
+  const isSavingTune = createLoading || updateLoading;
 
-  const tune: Tune = (
-    !tuneId || tuneId === "new" || !selectedPlaylist?.tunes
-      ? ({
-          id: Math.random().toString().substring(2),
-          title: "",
-          tracks: [],
-          createdAt: Timestamp.now(),
-        } satisfies Tune)
-      : selectedPlaylist.tunes.find((tune) => tune.id === tuneId)
-  ) as Tune;
+  const emptyTune: Partial<Tune> = {
+    title: "",
+    tracks: [],
+  };
 
   const form = useForm({
-    initialValues: tune,
+    initialValues: emptyTune,
   });
+  const tracks = form.values.tracks || [];
+  const [debouncedTitle] = useDebouncedValue(form.values.title, 200);
 
-  const openPreview = (song: Song) => {
-    previewDisclosure[1].open();
-    setPreviewSong(song);
-  };
+  useEffect(() => {
+    if (!currentTune) return;
+    if (currentTune && previouCurrentTune?.id !== currentTune.id) {
+      form.setValues(currentTune);
+    }
+  }, [currentTune, form, previouCurrentTune?.id]);
 
-  const handleSubmit = (tune: Tune) => {
-    if (!selectedPlaylist) return;
+  const handleSubmit = async (tune: Tune) => {
     if (!tune.tracks.length) return alert("Add at least one song to the tune");
 
-    const tunes =
-      tuneId === "new"
-        ? [...selectedPlaylist.tunes, tune]
-        : selectedPlaylist.tunes.map((t) =>
-            t.id === tune.id ? form.values : t,
-          );
+    if (!currentTune) {
+      await create(tune);
+    } else {
+      await update(tune);
+    }
 
-    updatePlaylist({
-      tunes,
-    });
-
-    navigate(RoutePaths.Playlist.replace(":playlistId", selectedPlaylist.id));
+    navigate(Route.Playlist.replace(":playlistId", playlist?.id || ""));
   };
 
-  const recomendedSongs = useMemo(() => {
-    return form.values.title.length < 4
-      ? []
-      : library
-          .filter(
-            (song) =>
-              stringSimilarity(clean(song.title), clean(form.values.title)) >
-                0.53 ||
-              clean(song.title).includes(clean(form.values.title)) ||
-              clean(form.values.title).includes(clean(song.title)),
-          )
-          .slice(0, 10);
-  }, [form.values.title]);
+  const addSongToTracks = (song: Song) => {
+    form.setValues({
+      ...form.values,
+      tracks: [
+        ...tracks,
+        {
+          id: Math.random().toString().substring(2),
+          song,
+          startTime: 0,
+          playbackRate: 1,
+        } satisfies Track,
+      ],
+    });
+  };
+
+  const removeTrack = (track: Track) => {
+    form.setValues({
+      ...form.values,
+      tracks: tracks.filter((t) => t.id !== track.id),
+    });
+  };
+
+  const recomendedSongs = useMemo(
+    () => searchSongs(debouncedTitle || ""),
+    [debouncedTitle],
+  );
 
   return (
     <>
-      <form
-        onSubmit={form.onSubmit((values) => {
-          handleSubmit(values as Tune);
-        })}
-      >
-        <LayoutPage
-          centerSection={"Create a Tune"}
-          rightSection={<Button type="submit">Save</Button>}
+      <form onSubmit={form.onSubmit((values) => handleSubmit(values as Tune))}>
+        <LayoutFullScreen
+          header={
+            <Header
+              leftSection={
+                <ActionIcon
+                  variant="transparent"
+                  component={Link}
+                  to={Route.Playlist.replace(":playlistId", playlist?.id || "")}
+                >
+                  <IoArrowBack size={"100%"} />
+                </ActionIcon>
+              }
+              rightSection={
+                <Button loading={isSavingTune} type="submit">
+                  Save
+                </Button>
+              }
+            />
+          }
         >
-          <Container py={"md"}>
+          <Container py={"md"} {...(loading ? { display: "none" } : null)}>
             <Stack>
               <TextInput
                 data-autofocus
-                size="lg"
                 required
                 label="Tune Name"
                 placeholder="Enter tune name..."
                 {...form.getInputProps("title")}
               />
 
-              <Divider />
-
-              <Group justify="space-between">
-                <Text size="lg" fw="bold">
-                  Songs
-                </Text>
-                <Button onClick={() => newSongDisclosure[1].open()}>
-                  Add Song
-                </Button>
-              </Group>
-
-              {form.values.tracks.length === 0 && (
-                <Text c="dimmed">No songs added</Text>
-              )}
-              <Stack gap={"xs"}>
-                {form.values.tracks.map((track) => (
-                  <Card withBorder p={"sm"} key={track.id}>
-                    <Group>
-                      <ActionIcon
-                        variant="transparent"
-                        color="gray"
-                        size={36}
-                        onClick={() => openPreview(track.song)}
-                      >
-                        <IoPlayCircleOutline size={"100%"} />
-                      </ActionIcon>
-
-                      <Stack
-                        maw={"calc(100% - 100px)"}
-                        gap={0}
-                        style={{ flex: 1 }}
-                      >
-                        <Text fz="sm" fw={700} truncate="end">
-                          {track.song.author}
-                        </Text>
-                        <Text fz="xs" c="dimmed" truncate="end">
-                          {track.song.title} — {track.playCount} plays
-                        </Text>
-                      </Stack>
-                      <ActionIcon
-                        size={32}
-                        variant="transparent"
-                        onClick={() => {
-                          form.setValues({
-                            ...form.values,
-                            tracks: form.values.tracks.filter(
-                              (t) => t.id !== track.id,
-                            ),
-                          });
-                        }}
-                      >
-                        <IoMdCloseCircle
-                          color="rgba(237, 74, 74, 1)"
-                          size={"100%"}
+              <Stack gap={4}>
+                <Input.Label>Songs</Input.Label>
+                <Card withBorder padding="sm" radius="md">
+                  <Stack gap={"4"}>
+                    <Stack
+                      gap={"4"}
+                      {...(tracks.length <= 0 && { display: "none" })}
+                    >
+                      {tracks.map((track) => (
+                        <ActionCard
+                          key={track.id}
+                          bg={"transparent"}
+                          title={track.song.author}
+                          subtitle={track.song.title}
+                          rightSection={
+                            <CiBookmarkRemove
+                              onClick={() => removeTrack(track)}
+                              size={32}
+                            />
+                          }
+                          leftSection={
+                            <IoPlayCircleOutline
+                              onClick={() => setPreviewSong(track.song)}
+                              size={36}
+                            />
+                          }
+                          onClick={() => setPreviewSong(track.song)}
                         />
-                      </ActionIcon>
-                    </Group>
-                  </Card>
-                ))}
+                      ))}
+                    </Stack>
+                    <Button onClick={() => createSongDisclosure[1].open()}>
+                      Add Song
+                    </Button>
+                  </Stack>
+                </Card>
               </Stack>
-              <Divider />
 
-              <Text size="lg" fw="bold">
-                Recomended Songs
-              </Text>
-
-              {form.values.title.length > 4 && recomendedSongs.length === 0 && (
-                <Text c="dimmed">No songs found</Text>
-              )}
-              <Stack gap={"xs"}>
+              <Stack
+                gap={"4"}
+                {...(recomendedSongs.length <= 0 &&
+                  debouncedTitle !== form.values.title && { display: "none" })}
+              >
+                <Input.Label>Reccomended Songs</Input.Label>
                 {recomendedSongs
-                  .filter((s) =>
-                    form.values.tracks.every((t) => t.song.url !== s.url),
-                  )
+                  .filter((song) => {
+                    return !tracks.find((track) => track.song.url === song.url);
+                  })
                   .map((song) => (
-                    <Group key={song.url}>
-                      <ActionIcon
-                        variant="transparent"
-                        color="gray"
-                        size={36}
-                        onClick={() => openPreview(song)}
-                      >
-                        <IoPlayCircleOutline size={"100%"} />
-                      </ActionIcon>
-
-                      <Stack
-                        maw={"calc(100% - 100px)"}
-                        gap={0}
-                        style={{ flex: 1 }}
-                      >
-                        <Text fz="sm" fw={700} truncate="end">
-                          {song.author}
-                        </Text>
-                        <Text fz="xs" c="dimmed" truncate="end">
-                          {song.title}
-                        </Text>
-                      </Stack>
-                      <ActionIcon
-                        size={32}
-                        variant="transparent"
-                        onClick={() => {
-                          form.setValues({
-                            ...form.values,
-                            tracks: [
-                              ...form.values.tracks,
-                              {
-                                id: Math.random().toString().substring(2),
-                                song,
-                                startTime: 0,
-                                playbackRate: 1,
-                                playCount: 0,
-                                createdAt: Timestamp.now(),
-                              },
-                            ],
-                          });
-                        }}
-                      >
-                        <FaPlusCircle size={"100%"} />
-                      </ActionIcon>
-                    </Group>
+                    <ActionCard
+                      key={song.url}
+                      bg={"transparent"}
+                      title={song.author}
+                      subtitle={song.title}
+                      rightSection={
+                        <CiCirclePlus
+                          onClick={() => addSongToTracks(song)}
+                          size={32}
+                        />
+                      }
+                      leftSection={
+                        <IoPlayCircleOutline
+                          onClick={() => setPreviewSong(song)}
+                          size={36}
+                        />
+                      }
+                      onClick={() => setPreviewSong(song)}
+                    />
                   ))}
               </Stack>
             </Stack>
           </Container>
-        </LayoutPage>
+        </LayoutFullScreen>
       </form>
       <SongPreviewDrawer
-        disclosure={previewDisclosure}
-        song={previewSong as Song}
+        song={previewSong}
+        onClose={() => setPreviewSong(null)}
       />
-      <NewSongDrawer
-        disclosure={newSongDisclosure}
+      <CreateSongDrawer
+        disclosure={createSongDisclosure}
         onComplete={(song) => {
-          form.setValues({
-            ...form.values,
-            tracks: [
-              ...form.values.tracks,
-              {
-                id: Math.random().toString().substring(2),
-                song,
-                startTime: 0,
-                playbackRate: 1,
-                playCount: 0,
-                createdAt: Timestamp.now(),
-              },
-            ],
-          });
+          addSongToTracks(song);
         }}
       />
     </>
   );
-};
-
-const clean = (s: string) => {
-  return s
-    .toLowerCase()
-    .replace("slip jig", "")
-    .replace("the", "")
-    .replace(", ", " ")
-    .replace(", the", " ")
-    .replace("jig", "")
-    .replace("reel", "")
-    .replace("hornpipe", "")
-    .replace("polka", "")
-    .replace("set dance", "")
-    .replace("setdance", "")
-    .replace("set", "")
-    .replace("dance", "")
-    .replace("slow air", "")
-    .replace("slow", "")
-    .replace("air", "")
-    .replace("barndance", "")
-    .replace("march", "")
-    .replace("waltz", "")
-    .replace("slide", "")
-    .replace(")", "")
-    .replace("(", "");
 };

@@ -11,17 +11,19 @@ export type Track = {
   song: Song;
   startTime: number;
   playbackRate: number;
-  lastPlayedAt?: Timestamp;
-  playCount: number;
-  createdAt: Timestamp;
 };
 
 export type Tune = {
   id: string;
+  creatorId: string;
+  playlistId: string;
   title: string;
-  createdAt: Timestamp;
-  selectedTrackId?: string;
+  selectedTrackId: string;
   tracks: Track[];
+  playCount: number;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+  lastPlayedAt: Timestamp | null;
 };
 
 export type Playlist = {
@@ -29,6 +31,6 @@ export type Playlist = {
   title: string;
   creatorId: string;
   createdAt: Timestamp;
-  updatedAt?: Timestamp;
-  tunes: Tune[];
+  updatedAt: Timestamp;
+  isDeleted: boolean;
 };

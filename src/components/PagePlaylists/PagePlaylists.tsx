@@ -1,109 +1,104 @@
-import { usePlaylists } from "@/hooks/usePlaylists";
-import { RoutePaths } from "@/router";
+import { Header } from "@/components/Header/Header";
+import { LayoutFullScreen } from "@/components/LayoutFullScreen/LayoutFullScreen";
+import { RequireAuth } from "@/components/RequireAuth/RequireAuth";
+import { auth } from "@/firebase";
+import { usePlaylists, useRemovePlaylist } from "@/hooks/usePlaylists";
+import { Route } from "@/router";
 import {
   ActionIcon,
-  Anchor,
   Box,
   Button,
   Container,
-  Group,
   Menu,
-  Paper,
   Stack,
   Text,
-  Title,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import { useSignOut } from "react-firebase-hooks/auth";
 import { BiTrash } from "react-icons/bi";
-import { FaClone } from "react-icons/fa";
+import { FaSignOutAlt } from "react-icons/fa";
 import { HiDotsHorizontal } from "react-icons/hi";
-import { TbPlaylistAdd } from "react-icons/tb";
-import { Link } from "react-router-dom";
-import { LayoutPage } from "../LayoutPage/LayoutPage";
-import { NewPlaylistDrawer } from "./NewPlaylistDrawer";
+import { useNavigate } from "react-router-dom";
+import { ActionCard } from "../ActionCard/ActionCard";
+import { CreateNewPlaylistDrawer } from "./CreateNewPlaylistDrawer";
 
 export const PagePlaylists = () => {
-  const {
-    playlists,
-    remove: removePlaylist,
-    clone: clonePlaylist,
-  } = usePlaylists();
-  const drawerDisclosure = useDisclosure();
+  const navigate = useNavigate();
+  const [signOut] = useSignOut(auth);
+  const [playlists, loading, error] = usePlaylists();
+  const [remove] = useRemovePlaylist();
+  const creatNewPlaylistDrawerDisclosure = useDisclosure();
+
+  if (error) return <div>Error Loading Playlists: {error.message}</div>;
+
   return (
-    <>
-      <LayoutPage>
-        <Container>
-          <Group py={"md"} justify="space-between">
-            <Title order={3}>Playlists</Title>
-
-            <Button
-              leftSection={<TbPlaylistAdd size={22} />}
-              onClick={() => {
-                drawerDisclosure[1].open();
-              }}
-            >
-              New Playlist
-            </Button>
-          </Group>
-
-          {playlists
-            .sort((a, b) => a.title.localeCompare(b.title))
-            .map((playlist) => (
-              <Paper key={playlist.id} withBorder mb="sm">
-                <Group justify="space-between">
-                  <Anchor
-                    flex={1}
-                    component={Link}
-                    to={RoutePaths.Playlist.replace(":playlistId", playlist.id)}
-                    p="md"
-                    underline="never"
-                    c={"black"}
-                  >
-                    <Stack gap={0} maw="calc(100% - 20px)">
-                      <Text fz="sm" fw={700} truncate="end">
-                        {playlist.title}
-                      </Text>
-                      <Text size="xs" truncate="end">
-                        {playlist.tunes.length} Tunes, Created{" "}
-                        {playlist.createdAt.toDate().toLocaleDateString()}
-                      </Text>
-                    </Stack>
-                  </Anchor>
-
+    <RequireAuth>
+      <LayoutFullScreen
+        header={
+          <Header
+            rightSection={
+              <Button
+                onClick={() => {
+                  creatNewPlaylistDrawerDisclosure[1].open();
+                }}
+              >
+                New Playlist
+              </Button>
+            }
+          />
+        }
+      >
+        <Container
+          pt={"lg"}
+          h={"100%"}
+          display={"flex"}
+          style={{ flexDirection: "column" }}
+        >
+          <Stack gap={"xs"} flex={1}>
+            {loading && <Text>Loading Playlists...</Text>}
+            {playlists?.map((playlist) => (
+              <ActionCard
+                title={playlist.title}
+                subtitle={`Created ${playlist.createdAt.toDate().toLocaleDateString()}`}
+                key={playlist.id}
+                onClick={() => {
+                  navigate(Route.Playlist.replace(":playlistId", playlist.id));
+                }}
+                rightSection={
                   <Menu shadow="md" width={100} position="right">
                     <Menu.Target>
-                      <Box px="md" py={"md"}>
-                        <ActionIcon color="dimmed" variant="transparent">
-                          <HiDotsHorizontal size={"100%"} />
-                        </ActionIcon>
-                      </Box>
+                      <ActionIcon
+                        size={"md"}
+                        color="black"
+                        variant="transparent"
+                      >
+                        <HiDotsHorizontal size={"100%"} />
+                      </ActionIcon>
                     </Menu.Target>
                     <Menu.Dropdown>
-                      <Menu.Item
-                        leftSection={<FaClone size={20} />}
-                        onClick={() => {
-                          clonePlaylist(playlist);
-                        }}
-                      >
-                        Clone
-                      </Menu.Item>
                       <Menu.Item
                         color="red"
                         leftSection={<BiTrash size={20} />}
                         onClick={() => {
-                          removePlaylist(playlist);
+                          remove(playlist);
                         }}
                       >
                         Delete
                       </Menu.Item>
                     </Menu.Dropdown>
                   </Menu>
-                </Group>
-              </Paper>
+                }
+              ></ActionCard>
             ))}
+          </Stack>
+          <Box py="lg">
+            <ActionIcon variant="light" onClick={() => signOut()}>
+              <FaSignOutAlt />
+            </ActionIcon>
+          </Box>
         </Container>
-      </LayoutPage>
-      <NewPlaylistDrawer disclosure={drawerDisclosure} />
-    </>
+      </LayoutFullScreen>
+      <CreateNewPlaylistDrawer disclosure={creatNewPlaylistDrawerDisclosure} />
+    </RequireAuth>
   );
 };

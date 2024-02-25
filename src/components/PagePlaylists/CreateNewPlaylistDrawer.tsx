@@ -1,18 +1,19 @@
-import { usePlaylists } from "@/hooks/usePlaylists";
-import { RoutePaths } from "@/router";
+import { useCreatePlaylist } from "@/hooks/usePlaylists";
+import { Route } from "@/router";
 import { Button, Drawer, Stack, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure, useFocusTrap } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
 
-export const NewPlaylistDrawer = ({
+export const CreateNewPlaylistDrawer = ({
   disclosure,
 }: {
   disclosure: ReturnType<typeof useDisclosure>;
 }) => {
   const navigate = useNavigate();
-  const { create: createPlaylist } = usePlaylists();
+  const [create, loading] = useCreatePlaylist();
   const [opened, { close }] = disclosure;
+
   const form = useForm({
     initialValues: {
       title: "",
@@ -31,9 +32,11 @@ export const NewPlaylistDrawer = ({
       radius="md"
     >
       <form
-        onSubmit={form.onSubmit((values) => {
-          const playlist = createPlaylist({ ...values, tunes: [] });
-          navigate(RoutePaths.Playlist.replace(":playlistId", playlist.id));
+        onSubmit={form.onSubmit(async (values) => {
+          if (loading) return;
+          const playlist = await create({ ...values });
+          if (!playlist) return;
+          navigate(Route.Playlist.replace(":playlistId", playlist.id));
         })}
         ref={focusTrapRef}
       >
@@ -46,7 +49,7 @@ export const NewPlaylistDrawer = ({
             placeholder="My Playlist"
             {...form.getInputProps("title")}
           />
-          <Button size="lg" type="submit">
+          <Button size="lg" type="submit" loading={loading}>
             Create
           </Button>
         </Stack>

@@ -1,24 +1,22 @@
 import { Song } from "@/types";
 import { ActionIcon, Box, Drawer, Group, Text } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
 import { createRef } from "react";
 import { RxCountdownTimer } from "react-icons/rx";
 import ReactPlayer from "react-player";
 
 export const SongPreviewDrawer = ({
-  disclosure,
   song,
+  onClose,
 }: {
-  disclosure: ReturnType<typeof useDisclosure>;
-  song: Song;
+  song: Song | null;
+  onClose: () => void;
 }) => {
-  const [opened, { close }] = disclosure;
   const playerRef = createRef<ReactPlayer>();
 
   return (
     <Drawer
-      opened={opened}
-      onClose={close}
+      opened={!!song}
+      onClose={onClose}
       position="bottom"
       size={300}
       title={

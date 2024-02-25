@@ -1,4 +1,3 @@
-import { AtomStoreProvider } from "@/components/AtomStoreProvider/AtomStoreProvider";
 import { MantineProvider } from "@mantine/core";
 import "@mantine/core/styles.css";
 import React from "react";
@@ -10,9 +9,7 @@ import { theme } from "./theme";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <MantineProvider theme={theme}>
-      <AtomStoreProvider>
-        <RouterProvider router={router} />
-      </AtomStoreProvider>
+      <RouterProvider router={router} />
     </MantineProvider>
   </React.StrictMode>,
 );

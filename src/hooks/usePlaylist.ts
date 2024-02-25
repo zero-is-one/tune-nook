@@ -1,38 +1,44 @@
-import { playlistsRef } from "@/components/AtomStoreProvider/AtomStoreProvider";
 import { Playlist } from "@/types";
 import { doc, setDoc } from "firebase/firestore";
 import { useState } from "react";
 import { useDocument } from "react-firebase-hooks/firestore";
 import { useParams } from "react-router-dom";
 
-export const usePlaylist = () => {
-  const { playlistId } = useParams();
-  const [snapshot, loading, error] = useDocument(doc(playlistsRef, playlistId));
+import { ref as playlistsRef } from "@/hooks/usePlaylists";
 
-  return {
-    playlist: !snapshot
+export const usePlaylist = (playlist?: Playlist) => {
+  let { playlistId } = useParams();
+  playlistId = playlist?.id || playlistId;
+  const [snapshot, loading, error] = useDocument(
+    playlistId ? doc(playlistsRef, playlistId) : null,
+  );
+
+  return [
+    !snapshot
       ? undefined
       : ({ ...snapshot?.data(), id: snapshot?.id } as Playlist),
     loading,
     error,
-  };
+  ] as const;
 };
 
-export const useUpdatePlaylist = () => {
-  const { playlist } = usePlaylist();
+export const useUpdatePlaylist = (playlist?: Playlist) => {
+  const [currentPlaylist] = usePlaylist();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const updatePlaylist = async (data: Partial<Playlist>) => {
-    try {
-      setLoading(true);
-      await setDoc(doc(playlistsRef, playlist?.id), data, { merge: true });
-    } catch (error) {
-      setError(error as Error);
-    } finally {
-      setLoading(false);
-    }
+  const update = async (data: Partial<Playlist>) => {
+    setLoading(true);
+    setError(null);
+
+    const playlistId = playlist?.id || currentPlaylist?.id;
+
+    return setDoc(doc(playlistsRef, playlistId), data, { merge: true })
+      .catch((error) => {
+        setError(error);
+      })
+      .finally(() => setLoading(false));
   };
 
-  return [updatePlaylist, loading, error] as const;
+  return [update, loading, error] as const;
 };

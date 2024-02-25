@@ -1,36 +1,31 @@
-import { PageEditTune } from "@/components/PageEditTune/PageEditTune";
-import { PagePlaylist } from "@/components/PagePlaylist/PagePlaylist";
+import { PageNotFound } from "@/components/PageNotFound/PageNotFound";
 import { PagePlaylists } from "@/components/PagePlaylists/PagePlaylists";
 import { createBrowserRouter } from "react-router-dom";
-import { RequireAuth } from "./components/RequireAuth/RequireAuth";
+import { PageEditTune } from "./components/PageEditTune/PageEditTune";
+import { PagePlaylist } from "./components/PagePlaylist/PagePlaylist";
 
-export const RoutePaths = {
-  Home: "/",
+export const Route = {
+  Playlists: "/",
   Playlist: "/playlists/:playlistId",
   Tune: "/playlists/:playlistId/tunes/:tuneId",
+  NewTune: "/playlists/:playlistId/tunes/new",
 } as const;
 
 export const router = createBrowserRouter([
   {
-    element: <RequireAuth />,
-    path: "/",
-    children: [
-      {
-        path: RoutePaths.Home,
-        element: <PagePlaylists />,
-      },
-      {
-        path: RoutePaths.Playlist,
-        element: <PagePlaylist />,
-      },
-      {
-        path: RoutePaths.Tune,
-        element: <PageEditTune />,
-      },
-      {
-        path: "*",
-        element: <div>Page Not Found</div>,
-      },
-    ],
+    element: <PagePlaylists />,
+    path: Route.Playlists,
+  },
+  {
+    element: <PagePlaylist />,
+    path: Route.Playlist,
+  },
+  {
+    element: <PageEditTune />,
+    path: Route.Tune,
+  },
+  {
+    element: <PageNotFound />,
+    path: "*",
   },
 ]);

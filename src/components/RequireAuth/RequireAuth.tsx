@@ -1,14 +1,15 @@
 import { auth } from "@/firebase";
+import { ReactNode } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { Outlet } from "react-router-dom";
-import { PageLogin } from "../PageLogin/PageLogin";
+import { LayoutFullScreen } from "../LayoutFullScreen/LayoutFullScreen";
+import { PageAuth } from "../PageAuth/PageAuth";
 
-export const RequireAuth = () => {
+export const RequireAuth = ({ children }: { children: ReactNode }) => {
   const [user, loading, error] = useAuthState(auth);
 
-  if (loading) return <div>Loading User...</div>;
+  if (loading) return <LayoutFullScreen>Loading User...</LayoutFullScreen>;
   if (error) return <div>Error Loading User</div>;
 
-  if (!user) return <PageLogin />;
-  return <Outlet />;
+  if (!user) return <PageAuth />;
+  return children;
 };

@@ -16,9 +16,9 @@ import {
   useCreateUserWithEmailAndPassword,
   useSignInWithEmailAndPassword,
 } from "react-firebase-hooks/auth";
-import { LayoutPage } from "../LayoutPage/LayoutPage";
+import { LayoutFullScreen } from "../LayoutFullScreen/LayoutFullScreen";
 
-export const PageLogin = () => {
+export const PageAuth = () => {
   const [type, toggle] = useToggle(["signIn", "create"]);
   const form = useForm({
     initialValues: {
@@ -59,7 +59,7 @@ export const PageLogin = () => {
   };
 
   return (
-    <LayoutPage>
+    <LayoutFullScreen>
       <Container>
         <form
           onSubmit={form.onSubmit(() => {
@@ -67,20 +67,6 @@ export const PageLogin = () => {
           })}
         >
           <Stack mt="md">
-            <Anchor
-              component="button"
-              type="button"
-              c="dimmed"
-              onClick={() => toggle()}
-              size="sm"
-            >
-              {type === "create"
-                ? "Already have an account? Login"
-                : "Don't have an account? Register"}
-            </Anchor>
-
-            <Divider />
-
             <Title order={3}>
               {type === "create" ? "Sign up to Tune Nook" : "Login"}
             </Title>
@@ -128,9 +114,21 @@ export const PageLogin = () => {
 
             {errorCreateUser && <div>Error: {errorCreateUser.message}</div>}
             {errorSignIn && <div>Error: {errorSignIn.message}</div>}
+            <Divider />
+            <Anchor
+              component="button"
+              type="button"
+              c="dimmed"
+              onClick={() => toggle()}
+              size="sm"
+            >
+              {type === "create"
+                ? "Already have an account? Login"
+                : "Don't have an account? Register"}
+            </Anchor>
           </Stack>
         </form>
       </Container>
-    </LayoutPage>
+    </LayoutFullScreen>
   );
 };

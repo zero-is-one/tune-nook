@@ -3,7 +3,7 @@ import { Button, Drawer, Stack, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 
-export const NewSongDrawer = ({
+export const CreateSongDrawer = ({
   disclosure,
   onComplete,
 }: {
