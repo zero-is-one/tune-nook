@@ -9,7 +9,6 @@ import { Playlist } from "@/types";
 import {
   ActionIcon,
   Box,
-  Button,
   Group,
   Menu,
   Select,
@@ -23,6 +22,7 @@ import { useState } from "react";
 import { BiSearch } from "react-icons/bi";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { IoArrowBack } from "react-icons/io5";
+import { PiMusicNotesPlusFill } from "react-icons/pi";
 import { RiCalendarFill, RiEyeFill } from "react-icons/ri";
 import { TbDragDrop2, TbEdit, TbLayersSubtract, TbTrash } from "react-icons/tb";
 import { Link, useNavigate } from "react-router-dom";
@@ -125,7 +125,7 @@ export const PagePlaylist = () => {
               </ActionIcon>
             }
             centerSection={
-              <Box w={300} {...(!playlist && { display: "none" })}>
+              <Box w={250} {...(!playlist && { display: "none" })}>
                 <EditableTitle
                   onChange={async (title) => {
                     await updatePlaylist({ title });
@@ -136,13 +136,14 @@ export const PagePlaylist = () => {
             }
             rightSection={
               <>
-                <Button
+                <ActionIcon
                   component={Link}
                   to={Route.NewTune.replace(":playlistId", playlist?.id || "")}
                   disabled={!playlist}
+                  size={"lg"}
                 >
-                  New Tune
-                </Button>
+                  <PiMusicNotesPlusFill size={"70%"} />
+                </ActionIcon>
               </>
             }
           />
@@ -151,7 +152,7 @@ export const PagePlaylist = () => {
         <Stack h={"100%"} gap={0}>
           <Group justify="space-between" p={"xs"} bg={"gray.3"}>
             <TextInput
-              w={150}
+              flex={1}
               leftSectionPointerEvents="none"
               leftSection={<BiSearch />}
               placeholder="Search"
@@ -171,7 +172,7 @@ export const PagePlaylist = () => {
               }}
             />
           </Group>
-          <Stack gap={4} p={"xs"} flex={1}>
+          <Stack gap={4} p={"xs"} flex={1} style={{ overflow: "scroll" }}>
             {filteredTunes?.map((tune) => (
               <ActionCard
                 style={{

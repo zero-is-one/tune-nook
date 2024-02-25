@@ -45,7 +45,7 @@ export const EditableTitle = ({
   }
 
   return (
-    <Group align="center" w={"100%"} justify="center">
+    <Group align="center" w={"100%"} justify="center" gap={4}>
       <Text size={"md"} maw="calc(100% - 48px)" truncate="end" fw={700}>
         {value}
       </Text>

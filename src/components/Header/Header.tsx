@@ -19,7 +19,7 @@ export const Header = ({
       {leftSection && (
         <Group
           gap={5}
-          pl="md"
+          pl="xs"
           align={"center"}
           justify={"center"}
           pos={"absolute"}
@@ -36,7 +36,7 @@ export const Header = ({
       {rightSection && (
         <Group
           gap={5}
-          pr="md"
+          pr={"xs"}
           align={"center"}
           justify={"center"}
           pos={"absolute"}

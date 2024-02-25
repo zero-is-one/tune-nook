@@ -93,6 +93,7 @@ export const PageAuth = () => {
               }
               error={form.errors.email && "Invalid email"}
               radius="md"
+              type="email"
             />
             <PasswordInput
               required

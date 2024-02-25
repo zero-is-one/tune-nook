@@ -26,9 +26,13 @@ export const ActionCard = ({
           style={{ cursor: "pointer" }}
         >
           {leftSection && <Group align="center">{leftSection}</Group>}
-          <Stack gap={0}>
-            <Text size={"md"}>{title}</Text>
-            <Text size={"xs"}>{subtitle}</Text>
+          <Stack gap={0} flex={1}>
+            <Text w={"calc(100vw - 220px)"} size={"md"} truncate="end">
+              {title}
+            </Text>
+            <Text w={"calc(100vw - 220px)"} size={"xs"} truncate="end">
+              {subtitle}
+            </Text>
           </Stack>
         </Group>
         {rightSection && (

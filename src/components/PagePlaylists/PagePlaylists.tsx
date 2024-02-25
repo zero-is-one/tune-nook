@@ -4,20 +4,13 @@ import { RequireAuth } from "@/components/RequireAuth/RequireAuth";
 import { auth } from "@/firebase";
 import { usePlaylists, useRemovePlaylist } from "@/hooks/usePlaylists";
 import { Route } from "@/router";
-import {
-  ActionIcon,
-  Box,
-  Button,
-  Container,
-  Menu,
-  Stack,
-  Text,
-} from "@mantine/core";
+import { ActionIcon, Box, Container, Menu, Stack, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useSignOut } from "react-firebase-hooks/auth";
 import { BiTrash } from "react-icons/bi";
 import { FaSignOutAlt } from "react-icons/fa";
 import { HiDotsHorizontal } from "react-icons/hi";
+import { TbPlaylistAdd } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 import { ActionCard } from "../ActionCard/ActionCard";
 import { CreateNewPlaylistDrawer } from "./CreateNewPlaylistDrawer";
@@ -37,13 +30,14 @@ export const PagePlaylists = () => {
         header={
           <Header
             rightSection={
-              <Button
+              <ActionIcon
                 onClick={() => {
                   creatNewPlaylistDrawerDisclosure[1].open();
                 }}
+                size={"lg"}
               >
-                New Playlist
-              </Button>
+                <TbPlaylistAdd size={"80%"} />
+              </ActionIcon>
             }
           />
         }
