@@ -13,7 +13,12 @@ export const searchSongs = (title: string) => {
             clean(song.title).includes(clean(title)) ||
             clean(title).includes(clean(song.title)),
         )
-        .slice(0, 10);
+        .slice(0, 20)
+        .sort(
+          (a, b) =>
+            stringSimilarity(clean(b.title), clean(title)) -
+            stringSimilarity(clean(a.title), clean(title)),
+        );
 };
 
 export const searchNames = (name: string) => {
@@ -26,7 +31,12 @@ export const searchNames = (name: string) => {
             clean(songName).includes(clean(name)) ||
             clean(name).includes(clean(songName)),
         )
-        .slice(0, 10);
+        .slice(0, 20)
+        .sort(
+          (a, b) =>
+            stringSimilarity(clean(b), clean(name)) -
+            stringSimilarity(clean(a), clean(name)),
+        );
 };
 
 export const searchNamesFilter: OptionsFilter = ({ search }) => {
