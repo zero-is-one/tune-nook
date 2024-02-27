@@ -172,7 +172,7 @@ export const PagePlaylist = () => {
               }}
             />
           </Group>
-          <Stack gap={4} p={"xs"} flex={1} style={{ overflow: "scroll" }}>
+          <Stack gap={4} p={"xs"} flex={1} style={{ overflow: "auto" }}>
             {filteredTunes?.map((tune) => (
               <ActionCard
                 style={{
