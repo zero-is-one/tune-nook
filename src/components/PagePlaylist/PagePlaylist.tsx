@@ -1,9 +1,10 @@
 import { EditableTitle } from "@/components/EditableTitle/EditableTitle";
 import { Header } from "@/components/Header/Header";
 import { LayoutFullScreen } from "@/components/LayoutFullScreen/LayoutFullScreen";
-import { usePlaylist, useUpdatePlaylist } from "@/hooks/usePlaylist";
+import { useAppContext } from "@/context";
+import { useUpdatePlaylist } from "@/hooks/usePlaylist";
 import { useUpdateTune } from "@/hooks/useTune";
-import { useCreateTune, useRemoveTune, useTunes } from "@/hooks/useTunes";
+import { useCreateTune, useRemoveTune } from "@/hooks/useTunes";
 import { Route } from "@/router";
 import { Playlist } from "@/types";
 import {
@@ -49,8 +50,10 @@ type TuneFilterOption = (typeof TuneFilterOptions)[number];
 
 export const PagePlaylist = () => {
   const navigate = useNavigate();
-  const [playlist] = usePlaylist();
-  const [tunes] = useTunes();
+  const {
+    playlist: [playlist],
+    tunes: [tunes],
+  } = useAppContext();
   const [createTune] = useCreateTune();
   const [updateTune] = useUpdateTune();
   const [removeTune] = useRemoveTune();

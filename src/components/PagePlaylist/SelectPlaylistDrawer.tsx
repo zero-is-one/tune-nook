@@ -1,4 +1,4 @@
-import { usePlaylists } from "@/hooks/usePlaylists";
+import { useAppContext } from "@/context";
 import { Playlist, Tune } from "@/types";
 import { Button, Drawer, Select, Stack } from "@mantine/core";
 import { useState } from "react";
@@ -20,7 +20,9 @@ export const SelectPlaylistDrawer = ({
   label: string;
 }) => {
   const [loading, setLoading] = useState(false);
-  const [playlists] = usePlaylists();
+  const {
+    playlists: [playlists],
+  } = useAppContext();
   const [selectedPlaylist, setSelectedPlaylist] = useState<
     Playlist | undefined
   >();

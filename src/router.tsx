@@ -1,8 +1,9 @@
 import { PageNotFound } from "@/components/PageNotFound/PageNotFound";
 import { PagePlaylists } from "@/components/PagePlaylists/PagePlaylists";
-import { createBrowserRouter } from "react-router-dom";
+import { Outlet, createBrowserRouter } from "react-router-dom";
 import { PageEditTune } from "./components/PageEditTune/PageEditTune";
 import { PagePlaylist } from "./components/PagePlaylist/PagePlaylist";
+import { AppProvider } from "./context";
 
 export const Route = {
   Playlists: "/",
@@ -13,16 +14,26 @@ export const Route = {
 
 export const router = createBrowserRouter([
   {
-    element: <PagePlaylists />,
-    path: Route.Playlists,
-  },
-  {
-    element: <PagePlaylist />,
-    path: Route.Playlist,
-  },
-  {
-    element: <PageEditTune />,
-    path: Route.Tune,
+    path: "/",
+    element: (
+      <AppProvider>
+        <Outlet />
+      </AppProvider>
+    ),
+    children: [
+      {
+        element: <PagePlaylists />,
+        path: Route.Playlists,
+      },
+      {
+        element: <PagePlaylist />,
+        path: Route.Playlist,
+      },
+      {
+        element: <PageEditTune />,
+        path: Route.Tune,
+      },
+    ],
   },
   {
     element: <PageNotFound />,

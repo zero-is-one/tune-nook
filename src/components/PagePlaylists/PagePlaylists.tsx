@@ -1,8 +1,9 @@
 import { Header } from "@/components/Header/Header";
 import { LayoutFullScreen } from "@/components/LayoutFullScreen/LayoutFullScreen";
 import { RequireAuth } from "@/components/RequireAuth/RequireAuth";
+import { useAppContext } from "@/context";
 import { auth } from "@/firebase";
-import { usePlaylists, useRemovePlaylist } from "@/hooks/usePlaylists";
+import { useRemovePlaylist } from "@/hooks/usePlaylists";
 import { Route } from "@/router";
 import { ActionIcon, Container, Group, Menu, Stack, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
@@ -18,7 +19,9 @@ import { CreateNewPlaylistDrawer } from "./CreateNewPlaylistDrawer";
 export const PagePlaylists = () => {
   const navigate = useNavigate();
   const [signOut] = useSignOut(auth);
-  const [playlists, loading, error] = usePlaylists();
+  const {
+    playlists: [playlists, loading, error],
+  } = useAppContext();
   const [remove] = useRemovePlaylist();
   const creatNewPlaylistDrawerDisclosure = useDisclosure();
 
