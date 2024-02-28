@@ -13,18 +13,22 @@ import {
   Menu,
   Select,
   Stack,
+  Text,
   TextInput,
 } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 import { Timestamp } from "firebase/firestore/lite";
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en";
 import { useState } from "react";
 import { BiSearch } from "react-icons/bi";
+import { FaHourglass } from "react-icons/fa";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { IoArrowBack } from "react-icons/io5";
 import { PiMusicNotesPlusFill } from "react-icons/pi";
-import { RiCalendarFill, RiEyeFill } from "react-icons/ri";
+import { RiEyeFill } from "react-icons/ri";
 import { TbDragDrop2, TbEdit, TbLayersSubtract, TbTrash } from "react-icons/tb";
+import { TiMediaFastForward } from "react-icons/ti";
 import { Link, useNavigate } from "react-router-dom";
 import { ActionCard } from "../ActionCard/ActionCard";
 import { Player } from "./Player";
@@ -55,6 +59,8 @@ export const PagePlaylist = () => {
     useState<SelectPlaylistContext>();
   const [activeTuneId, setActiveTuneId] = useState<string | undefined>();
   const activeTune = tunes?.find((tune) => tune.id === activeTuneId);
+  const isTinyScreen = useMediaQuery(`(max-width: 411px)`);
+
   const [searchText, setSearchText] = useState("");
   const [selectedFilter, setSelectedFilter] = useState<TuneFilterOption>(
     TuneFilterOptions[0],
@@ -152,7 +158,7 @@ export const PagePlaylist = () => {
         <Stack h={"100%"} gap={0}>
           <Group justify="space-between" p={"xs"} bg={"gray.3"}>
             <TextInput
-              flex={1}
+              w={160}
               leftSectionPointerEvents="none"
               leftSection={<BiSearch />}
               placeholder="Search"
@@ -162,6 +168,20 @@ export const PagePlaylist = () => {
                 setActiveTuneId(undefined);
               }}
             />
+            <Stack
+              justify="center"
+              align="center"
+              gap={0}
+              flex={1}
+              style={{
+                overflow: "hidden",
+                ...(isTinyScreen ? { display: "none" } : {}),
+              }}
+            >
+              <Text size="sm">{tunes?.length || "--"}</Text>
+              <Text size="xs">tunes</Text>
+            </Stack>
+
             <Select
               w={160}
               data={TuneFilterOptions}
@@ -191,9 +211,17 @@ export const PagePlaylist = () => {
                     <Group component={"span"} gap={4}>
                       <RiEyeFill size={14} />
                       <span>{tune.playCount}</span>
+                    </Group>{" "}
+                    <Group component={"span"} gap={4}>
+                      <TiMediaFastForward size={20} />
+                      <span>
+                        {tune.tracks.find((t) => t.id === tune.selectedTrackId)
+                          ?.playbackRate || 1}
+                        x
+                      </span>
                     </Group>
                     <Group component={"span"} gap={4}>
-                      <RiCalendarFill size={14} />
+                      <FaHourglass size={12} />
                       <span>
                         {!tune.lastPlayedAt
                           ? "--"

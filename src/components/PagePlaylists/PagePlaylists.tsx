@@ -4,7 +4,7 @@ import { RequireAuth } from "@/components/RequireAuth/RequireAuth";
 import { auth } from "@/firebase";
 import { usePlaylists, useRemovePlaylist } from "@/hooks/usePlaylists";
 import { Route } from "@/router";
-import { ActionIcon, Box, Container, Menu, Stack, Text } from "@mantine/core";
+import { ActionIcon, Container, Group, Menu, Stack, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useSignOut } from "react-firebase-hooks/auth";
 import { BiTrash } from "react-icons/bi";
@@ -85,11 +85,11 @@ export const PagePlaylists = () => {
               ></ActionCard>
             ))}
           </Stack>
-          <Box py="lg">
+          <Group py="lg" justify="flex-end">
             <ActionIcon variant="light" onClick={() => signOut()}>
               <FaSignOutAlt />
             </ActionIcon>
-          </Box>
+          </Group>
         </Container>
       </LayoutFullScreen>
       <CreateNewPlaylistDrawer disclosure={creatNewPlaylistDrawerDisclosure} />

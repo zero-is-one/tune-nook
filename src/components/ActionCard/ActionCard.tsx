@@ -23,10 +23,11 @@ export const ActionCard = ({
           align="center"
           onClick={() => onClick && onClick()}
           flex={1}
-          style={{ cursor: "pointer" }}
+          miw={0}
+          style={{ cursor: "pointer", overflow: "auto" }}
         >
           {leftSection && <Group align="center">{leftSection}</Group>}
-          <Stack gap={0} flex={1}>
+          <Stack gap={0} flex={1} miw={0}>
             <Text size={"md"} truncate="end">
               {title}
             </Text>
