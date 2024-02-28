@@ -14,10 +14,8 @@ import {
   Menu,
   Select,
   Stack,
-  Text,
   TextInput,
 } from "@mantine/core";
-import { useMediaQuery } from "@mantine/hooks";
 import { Timestamp } from "firebase/firestore/lite";
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en";
@@ -62,8 +60,6 @@ export const PagePlaylist = () => {
     useState<SelectPlaylistContext>();
   const [activeTuneId, setActiveTuneId] = useState<string | undefined>();
   const activeTune = tunes?.find((tune) => tune.id === activeTuneId);
-  const isTinyScreen = useMediaQuery(`(max-width: 411px)`);
-
   const [searchText, setSearchText] = useState("");
   const [selectedFilter, setSelectedFilter] = useState<TuneFilterOption>(
     TuneFilterOptions[0],
@@ -161,32 +157,21 @@ export const PagePlaylist = () => {
         <Stack h={"100%"} gap={0}>
           <Group justify="space-between" p={"xs"} bg={"gray.3"}>
             <TextInput
-              w={160}
+              maw={260}
+              flex={1}
               leftSectionPointerEvents="none"
               leftSection={<BiSearch />}
-              placeholder="Search"
+              placeholder={`Search ${tunes?.length || "--"} tunes`}
               value={searchText}
               onChange={(e) => {
                 setSearchText(e.currentTarget.value);
                 setActiveTuneId(undefined);
               }}
             />
-            <Stack
-              justify="center"
-              align="center"
-              gap={0}
-              flex={1}
-              style={{
-                overflow: "hidden",
-                ...(isTinyScreen ? { display: "none" } : {}),
-              }}
-            >
-              <Text size="sm">{tunes?.length || "--"}</Text>
-              <Text size="xs">tunes</Text>
-            </Stack>
 
             <Select
-              w={160}
+              maw={260}
+              flex={1}
               data={TuneFilterOptions}
               value={selectedFilter}
               onChange={(value) => {
