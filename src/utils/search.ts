@@ -45,11 +45,13 @@ export const searchNamesFilter: OptionsFilter = ({ search }) => {
 };
 
 const clean = (s: string) => {
-  return s
-    .toLowerCase()
+  return encodeURIComponent(s.toLowerCase().replace(/[^a-z0-9 _-]+/gi, " "))
+    .replace(/%20/g, " ")
+    .replace("%20", " ")
+    .replace("-", " ")
     .replace("slip jig", "")
     .replace(", the", " ")
-    .replace("the ", "")
+    .replace("the", "")
     .replace(", ", " ")
     .replace("jig", "")
     .replace("reel", "")
@@ -67,5 +69,6 @@ const clean = (s: string) => {
     .replace("waltz", "")
     .replace("slide", "")
     .replace(")", "")
-    .replace("(", "");
+    .replace("(", "")
+    .replace("-", "");
 };
