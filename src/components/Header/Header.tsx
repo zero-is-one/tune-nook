@@ -1,6 +1,7 @@
-import { Box, BoxComponentProps, Group } from "@mantine/core";
+import { Anchor, Box, BoxComponentProps, Group } from "@mantine/core";
 import { ReactNode } from "react";
 import { RiFileMusicFill } from "react-icons/ri";
+import { Link } from "react-router-dom";
 
 export const Header = ({
   leftSection,
@@ -64,10 +65,12 @@ export const Header = ({
         }}
       >
         {!centerSection && (
-          <>
-            <RiFileMusicFill size={24} />
-            TUNE NOOK
-          </>
+          <Anchor component={Link} to="/">
+            <Group gap={4} fw={"bold"}>
+              <RiFileMusicFill size={24} />
+              TUNE NOOK
+            </Group>
+          </Anchor>
         )}
         {centerSection}
       </Group>
