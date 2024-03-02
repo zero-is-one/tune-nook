@@ -83,10 +83,11 @@ export const Player = ({
   if (!tune) return null;
 
   return (
-    <Group justify="center" w={"100%"}>
+    <Group justify="center" w={"100%"} p={0}>
       <Box
-        maw={600}
+        maw={800}
         bg={"blue.1"}
+        w={"100%"}
         style={{ boxShadow: "0px 0px 3px 0px rgba(0,0,0,0.15)" }}
       >
         <Group
@@ -121,8 +122,10 @@ export const Player = ({
           <Box w={playerWidth} py="xs">
             <Menu position={"top"} shadow="lg" withArrow arrowPosition="center">
               <Menu.Target>
-                <Button w={"100%"} h={"100%"} fz={16}>
-                  {selectedTrack.song.author + "- " + selectedTrack.song.title}
+                <Button w={"100%"} h={"100%"} fz={16} ta={"left"}>
+                  {selectedTrack.song.author}
+                  <br />
+                  {selectedTrack.song.title}
                 </Button>
               </Menu.Target>
               <Menu.Dropdown>
@@ -144,7 +147,6 @@ export const Player = ({
           </Box>
           <Box flex={1} p="xs">
             <Button
-              color="gray"
               variant="light"
               w={"100%"}
               h={"100%"}
