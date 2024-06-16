@@ -4,9 +4,11 @@ import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 
 export const CreateSongDrawer = ({
+  title,
   disclosure,
   onComplete,
 }: {
+  title?: string;
   disclosure: ReturnType<typeof useDisclosure>;
   onComplete: (song: Song) => void;
 }) => {
@@ -15,7 +17,7 @@ export const CreateSongDrawer = ({
     initialValues: {
       url: "",
       author: "",
-      title: "",
+      title: title || "",
     },
   });
 
@@ -34,7 +36,6 @@ export const CreateSongDrawer = ({
           form.reset();
         })}
       >
-        {" "}
         <Stack gap={"md"}>
           <TextInput
             withAsterisk

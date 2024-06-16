@@ -207,6 +207,7 @@ export const PageEditTune = () => {
         onClose={() => setPreviewSong(null)}
       />
       <CreateSongDrawer
+        title={currentTune?.title}
         disclosure={createSongDisclosure}
         onComplete={(song) => {
           addSongToTracks(song);

@@ -26,6 +26,12 @@ export const PagePlaylists = () => {
   const creatNewPlaylistDrawerDisclosure = useDisclosure();
 
   if (error) return <div>Error Loading Playlists: {error.message}</div>;
+  if (!playlists) return <div>Loading...</div>;
+
+  // sort playlists by abc title order
+  const sortedPlaylists = playlists.sort((a, b) =>
+    a.title.localeCompare(b.title),
+  );
 
   return (
     <RequireAuth>
@@ -53,7 +59,7 @@ export const PagePlaylists = () => {
         >
           <Stack gap={"xs"} flex={1}>
             {loading && <Text>Loading Playlists...</Text>}
-            {playlists?.map((playlist) => (
+            {sortedPlaylists?.map((playlist) => (
               <ActionCard
                 title={playlist.title}
                 subtitle={`Created ${playlist.createdAt.toDate().toLocaleDateString()}`}

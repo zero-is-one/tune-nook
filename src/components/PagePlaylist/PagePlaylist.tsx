@@ -21,7 +21,7 @@ import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en";
 import { useState } from "react";
 import { BiSearch } from "react-icons/bi";
-import { FaHourglass } from "react-icons/fa";
+import { FaHourglass, FaRegHourglass } from "react-icons/fa";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { IoArrowBack } from "react-icons/io5";
 import { PiMusicNotesPlusFill } from "react-icons/pi";
@@ -43,6 +43,7 @@ const TuneFilterOptions = [
   "Alphabetical",
   "Created, newest",
   "Created, oldest",
+  "Play Count",
 ] as const;
 type TuneFilterOption = (typeof TuneFilterOptions)[number];
 
@@ -89,6 +90,9 @@ export const PagePlaylist = () => {
   }
   if (selectedFilter === "Created, oldest") {
     filteredTunes.reverse();
+  }
+  if (selectedFilter === "Play Count") {
+    filteredTunes.sort((a, b) => (a.playCount > b.playCount ? -1 : 1));
   }
 
   const onSelectedPlaylistFromDrawer = async (
@@ -209,7 +213,14 @@ export const PagePlaylist = () => {
                       </span>
                     </Group>
                     <Group component={"span"} gap={4}>
-                      <FaHourglass size={12} />
+                      {tune.lastPlayedAt &&
+                      tune.lastPlayedAt.toDate() >
+                        new Date(Date.now() - 12 * 60 * 60 * 1000) ? (
+                        <FaHourglass size={12} />
+                      ) : (
+                        <FaRegHourglass size={12} />
+                      )}
+
                       <span>
                         {!tune.lastPlayedAt
                           ? "--"
