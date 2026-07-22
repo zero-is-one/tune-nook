@@ -8,6 +8,9 @@
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
+    "fetch:session-youtube-ids": "node scripts/fetch-session-youtube-ids.mjs",
+    "append:session-videos": "node scripts/append-session-videos-to-library.mjs",
+    "sync:library-names": "node scripts/sync-library-names.mjs",
     "deploy:rules": "firebase deploy --only firestore:rules",
     "deploy:hosting": "npm run build && firebase deploy --only hosting"
   },
