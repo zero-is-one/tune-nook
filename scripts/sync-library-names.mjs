@@ -76,7 +76,9 @@ function normalizeName(value) {
 }
 
 function collectMissingNames(libraryEntries, existingNames) {
-  const existing = new Set(existingNames.map((name) => normalizeName(name)).filter(Boolean));
+  const existing = new Set(
+    existingNames.map((name) => normalizeName(name)).filter(Boolean),
+  );
   const pending = new Set();
   const missing = [];
 
@@ -119,11 +121,16 @@ async function main() {
   }
 
   const existingNames = names.filter((item) => typeof item === "string");
-  const { missing, invalidTitles } = collectMissingNames(library, existingNames);
+  const { missing, invalidTitles } = collectMissingNames(
+    library,
+    existingNames,
+  );
 
   process.stdout.write(`Existing names: ${existingNames.length}\n`);
   process.stdout.write(`Library entries scanned: ${library.length}\n`);
-  process.stdout.write(`Invalid/empty library titles skipped: ${invalidTitles}\n`);
+  process.stdout.write(
+    `Invalid/empty library titles skipped: ${invalidTitles}\n`,
+  );
   process.stdout.write(`Missing names to append: ${missing.length}\n`);
 
   if (missing.length === 0) {
@@ -139,14 +146,22 @@ async function main() {
   }
 
   const updatedNames = [...existingNames, ...missing];
-  await writeFile(options.namesPath, `${JSON.stringify(updatedNames, null, 2)}\n`, "utf8");
+  await writeFile(
+    options.namesPath,
+    `${JSON.stringify(updatedNames, null, 2)}\n`,
+    "utf8",
+  );
 
-  process.stdout.write(`Appended ${missing.length} names to ${options.namesPath}\n`);
+  process.stdout.write(
+    `Appended ${missing.length} names to ${options.namesPath}\n`,
+  );
 }
 
 main().catch((error) => {
   process.stderr.write("Failed to sync names from library.\n");
-  process.stderr.write(`${error?.name || "Error"}: ${error?.message || String(error)}\n`);
+  process.stderr.write(
+    `${error?.name || "Error"}: ${error?.message || String(error)}\n`,
+  );
   if (error?.stack) {
     process.stderr.write(`${error.stack}\n`);
   }
