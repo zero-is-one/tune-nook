@@ -1,5 +1,6 @@
 import { PageNotFound } from "@/components/PageNotFound/PageNotFound";
 import { PagePlaylists } from "@/components/PagePlaylists/PagePlaylists";
+import { RequireAuth } from "@/components/RequireAuth/RequireAuth";
 import { Outlet, createBrowserRouter } from "react-router-dom";
 import { PageEditTune } from "./components/PageEditTune/PageEditTune";
 import { PagePlaylist } from "./components/PagePlaylist/PagePlaylist";
@@ -22,16 +23,25 @@ export const router = createBrowserRouter([
     ),
     children: [
       {
-        element: <PagePlaylists />,
-        path: Route.Playlists,
-      },
-      {
-        element: <PagePlaylist />,
-        path: Route.Playlist,
-      },
-      {
-        element: <PageEditTune />,
-        path: Route.Tune,
+        element: (
+          <RequireAuth>
+            <Outlet />
+          </RequireAuth>
+        ),
+        children: [
+          {
+            element: <PagePlaylists />,
+            path: Route.Playlists,
+          },
+          {
+            element: <PagePlaylist />,
+            path: Route.Playlist,
+          },
+          {
+            element: <PageEditTune />,
+            path: Route.Tune,
+          },
+        ],
       },
     ],
   },

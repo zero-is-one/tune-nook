@@ -1,6 +1,5 @@
 import { Header } from "@/components/Header/Header";
 import { LayoutFullScreen } from "@/components/LayoutFullScreen/LayoutFullScreen";
-import { RequireAuth } from "@/components/RequireAuth/RequireAuth";
 import { useAppContext } from "@/context";
 import { auth } from "@/firebase";
 import { useRemovePlaylist } from "@/hooks/usePlaylists";
@@ -34,7 +33,7 @@ export const PagePlaylists = () => {
   );
 
   return (
-    <RequireAuth>
+    <>
       <LayoutFullScreen
         header={
           <Header
@@ -102,6 +101,6 @@ export const PagePlaylists = () => {
         </Container>
       </LayoutFullScreen>
       <CreateNewPlaylistDrawer disclosure={creatNewPlaylistDrawerDisclosure} />
-    </RequireAuth>
+    </>
   );
 };
